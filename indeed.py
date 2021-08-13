@@ -25,6 +25,7 @@ done
 import os
 import re
 import pandas
+import pytz
 import datetime
 import jessica_es
 import indeed_parsing
@@ -95,8 +96,9 @@ PUT job
 create today's folders
 '''
 
-today = datetime.date.today()
+today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
 today = today.strftime("%Y%m%d")
+
 
 today_folder_job_page = '/dcd_data/indeed/job_page/download_date=%s'%(today)
 today_folder_job_list_page = '/dcd_data/indeed/job_list_page/download_date=%s'%(today)
