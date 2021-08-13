@@ -13,7 +13,7 @@ yanliang12/yan_dcd:1.0.1
 ####indeed_schedule.sh####
 while true; do
    python3 indeed.py
-   sleep $[60 * 1]
+   sleep $[60 * 30]
 done
 ####indeed_schedule.sh####
 
@@ -45,6 +45,51 @@ sc = SparkContext("local")
 sqlContext = SparkSession.builder.getOrCreate()
 
 #######
+
+
+'''
+
+ingest the data to es to build the dashboard
+
+mv /jessica/elasticsearch-6.7.1 /jessica/elasticsearch_job
+cp -r /jessica/elasticsearch_job /dcd_data/es/
+
+'''
+
+es_session = jessica_es.start_es(
+	es_path = "/dcd_data/es/elasticsearch_job",
+	es_port_number = "9364")
+
+'''
+http://localhost:9466
+'''
+
+jessica_es.start_kibana(
+	kibana_path = '/jessica/kibana-6.7.1-linux-x86_64',
+	kibana_port_number = "5311",
+	es_port_number = "9364",
+	)
+
+'''
+http://localhost:5311
+
+DELETE job
+
+PUT job
+{
+  "mappings": {
+  "doc":{
+	    "properties": {
+	      "job__job_company_geo_point__geo_point": {"type": "geo_point"}
+	    }
+   }
+  }
+}
+
+'''
+
+#######
+
 
 '''
 create today's folders
@@ -314,46 +359,6 @@ sqlContext.sql(u"""
 '''
 
 
-'''
-
-ingest the data to es to build the dashboard
-
-mv /jessica/elasticsearch-6.7.1 /jessica/elasticsearch_job
-cp -r /jessica/elasticsearch_job /dcd_data/es/
-
-'''
-
-es_session = jessica_es.start_es(
-	es_path = "/dcd_data/es/elasticsearch_job",
-	es_port_number = "9364")
-
-'''
-http://localhost:9466
-'''
-
-jessica_es.start_kibana(
-	kibana_path = '/jessica/kibana-6.7.1-linux-x86_64',
-	kibana_port_number = "5311",
-	es_port_number = "9364",
-	)
-
-'''
-http://localhost:5311
-
-DELETE job
-
-PUT job
-{
-  "mappings": {
-  "doc":{
-	    "properties": {
-	      "job__job_company_geo_point__geo_point": {"type": "geo_point"}
-	    }
-   }
-  }
-}
-
-'''
 
 es_folders = listdir('es_data') 
 es_folders = ['es_data/%s'%(f) for f in es_folders]
