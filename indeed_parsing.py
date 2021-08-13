@@ -1,3 +1,4 @@
+###########indeed_parsing.py#############
 import re
 import datetime
 
@@ -182,7 +183,7 @@ generate_post_date_from_crawling_date_and_post_duration(
 '''
 
 
-def extract_salary_from_salary_description(
+def extract_salary_amount_from_salary_description(
 	salary_description,
 	):
 	output = []
@@ -204,3 +205,27 @@ extract_salary_from_salary_description(
 	salary_description,
 	)
 '''
+
+
+
+def extract_salary_frequency_from_salary_description(
+	salary_description,
+	):
+	output = []
+	for m in re.finditer(r'[^A-z](a|per)\s*(?P<salary_frequency>[A-z]+)$', salary_description):
+		try:
+			salary_frequency = m.group('salary_frequency')
+			output.append(salary_frequency)
+		except:
+			pass
+	return output
+
+'''
+salary_description = 'AED5,000 a month'
+salary_description = 'AED1,500 - AED1,800 a month'
+
+extract_salary_frequency_from_salary_description(
+	salary_description,
+	)
+'''
+###########indeed_parsing.py#############
