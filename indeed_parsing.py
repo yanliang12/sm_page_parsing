@@ -174,7 +174,33 @@ def generate_post_date_from_crawling_date_and_post_duration(
 	return post_date
 
 
+'''
 generate_post_date_from_crawling_date_and_post_duration(
 	crawling_date = '2021-08-10',
 	post_duration = '2 days ago',
 	)
+'''
+
+
+def extract_salary_from_salary_description(
+	salary_description,
+	):
+	output = []
+	for m in re.finditer(r'[\d\,\.]+', salary_description):
+		try:
+			salary_amount = m.group()
+			salary_amount = re.sub(r'[^\d\.]+', '', salary_amount)
+			salary_amount = float(salary_amount)
+			output.append(salary_amount)
+		except:
+			pass
+	return output
+
+'''
+salary_description = 'AED5,000 a month'
+salary_description = 'AED1,500 - AED1,800 a month'
+
+extract_salary_from_salary_description(
+	salary_description,
+	)
+'''
