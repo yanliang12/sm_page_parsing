@@ -8,6 +8,16 @@ docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
 yanliang12/yan_dcd:1.0.1
 
+
+
+####indeed_schedule.sh####
+while true; do
+   python3 indeed.py
+   sleep $[60 * 1]
+done
+####indeed_schedule.sh####
+
+
 '''
 
 #######
@@ -81,7 +91,7 @@ download today's list page
 
 yan_web_page_batch_download.args.input_json = '/dcd_data/indeed/indeed_job_list_page_url.json'
 yan_web_page_batch_download.args.local_path = today_folder_job_list_page
-yan_web_page_batch_download.args.sleep_second_per_page = '3'
+yan_web_page_batch_download.args.sleep_second_per_page = '10'
 yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
 yan_web_page_batch_download.args.overwrite = 'true'
 yan_web_page_batch_download.main()
