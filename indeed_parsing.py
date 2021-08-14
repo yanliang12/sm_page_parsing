@@ -228,4 +228,26 @@ extract_salary_frequency_from_salary_description(
 	salary_description,
 	)
 '''
+
+
+def extract_contract_duration_number(
+	duration_srting,
+	):
+	output = []
+	for m in re.finditer(r'\d+', duration_srting):
+		output.append(int(m.group()))
+	return output
+
+def extract_contract_duration_unit(
+	duration_srting,
+	):
+	output = []
+	for m in re.finditer(r'[A-z]+$', duration_srting):
+		output.append(m.group())
+	return output
+
+'''
+duration_srting = '24 months'
+'''
+
 ###########indeed_parsing.py#############

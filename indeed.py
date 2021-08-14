@@ -99,7 +99,6 @@ create today's folders
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
 today = today.strftime("%Y%m%d")
 
-
 today_folder_job_page = '/dcd_data/indeed/job_page/download_date=%s'%(today)
 today_folder_job_list_page = '/dcd_data/indeed/job_list_page/download_date=%s'%(today)
 
@@ -203,11 +202,65 @@ indeed_job_page.withColumn(
 	.write.mode('Overwrite').json('indeed_job_page_parsed')
 
 '''
+find the contract duration from the parsed data
+'''
+
+udf_contract_number = udf(
+	indeed_parsing.extract_contract_duration_number,
+	ArrayType(IntegerType()))
+
+udf_contract_unit = udf(
+	indeed_parsing.extract_contract_duration_unit,
+	ArrayType(StringType()))
+
+sqlContext.read.json('indeed_job_page_parsed').registerTempTable('indeed_job_page_parsed')
+
+sqlContext.sql(u"""
+	SELECT DISTINCT
+	page_url_hash,
+	parsed.job__job_contract_length__contract_length 
+	FROM (
+	SELECT 
+	page_url_hash,
+	crawling_date,
+	EXPLODE(parsed) AS parsed
+	FROM indeed_job_page_parsed
+	) AS temp
+	WHERE parsed.job__job_contract_length__contract_length IS NOT NULL
+	""")\
+	.withColumn(
+	'contract_length_number',
+	udf_contract_number(
+		'job__job_contract_length__contract_length'
+		)
+	)\
+	.withColumn(
+	'contract_length_unit',
+	udf_contract_unit(
+		'job__job_contract_length__contract_length'
+		)
+	).registerTempTable('job__job_contract_length__contract_length')
+
+sqlContext.sql(u"""
+	SELECT DISTINCT page_url_hash, 
+	job__job_contract_length__contract_length,
+	contract_length_number,
+	contract_length_unit
+	FROM job__job_contract_length__contract_length
+	WHERE page_url_hash IS NOT NULL 
+	AND (
+		contract_length_number IS NOT NULL
+		OR contract_length_unit IS NOT NULL
+	)
+	""").write.mode('Overwrite').parquet('job__job_contract_length__contract_length')
+
+
+'''
 find the post data from crawling data and post duration
 '''
 
 udf_post_date = udf(
-	indeed_parsing.	generate_post_date_from_crawling_date_and_post_duration,
+	indeed_parsing.generate_post_date_from_crawling_date_and_post_duration,
 	StringType())
 
 sqlContext.read.json('indeed_job_page_parsed').registerTempTable('indeed_job_page_parsed')
@@ -323,6 +376,7 @@ sqlContext.sql(u"""
 merger all to a json folder
 '''
 
+sqlContext.read.parquet('job__job_contract_length__contract_length').registerTempTable('job__job_contract_length__contract_length')
 sqlContext.read.parquet('job__job_post_date__date').registerTempTable('job__job_post_date__date')
 sqlContext.read.parquet('job__job_company_geo_point__geo_point').registerTempTable('job__job_company_geo_point__geo_point')
 sqlContext.read.parquet('salary_amount1').registerTempTable('salary_amount1')
@@ -335,11 +389,15 @@ sqlContext.sql(u"""
 	p.job__job_post_date__date,
 	g.job__job_company_geo_point__geo_point,
 	s.salary_amount,
-	s.salary_frequency
+	s.salary_frequency,
+	c.job__job_contract_length__contract_length,
+	c.contract_length_number,
+	c.contract_length_unit
 	FROM indeed_job_page_parsed AS j
 	LEFT JOIN job__job_post_date__date AS p ON p.page_url_hash = j.page_url_hash
 	LEFT JOIN job__job_company_geo_point__geo_point AS g ON g.page_url_hash = j.page_url_hash
 	LEFT JOIN salary_amount1 AS s ON s.page_url_hash = j.page_url_hash
+	LEFT JOIN job__job_contract_length__contract_length AS c ON c.page_url_hash = j.page_url_hash
 	""").write.partitionBy("partition_id").mode('Overwrite').json('es_data')
 
 sqlContext.read.json('es_data').registerTempTable('es_data')
@@ -359,8 +417,6 @@ sqlContext.sql(u"""
 +--------+-----------------------------+
 
 '''
-
-
 
 es_folders = listdir('es_data') 
 es_folders = ['es_data/%s'%(f) for f in es_folders]
