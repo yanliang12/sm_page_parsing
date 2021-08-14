@@ -185,12 +185,12 @@ yan_web_page_batch_download.main()
 parsing the page of jobs
 '''
 
+#indeed_job_page = sqlContext.read.json('/dcd_data/indeed/job_page')
+indeed_job_page = sqlContext.read.json(today_folder_job_page)
+
 udf_job_page_parsing = udf(
 	indeed_parsing.job_page_parsing,
 	ArrayType(MapType(StringType(), StringType())))
-
-#indeed_job_page = sqlContext.read.json('/dcd_data/indeed/job_page')
-indeed_job_page = sqlContext.read.json(today_folder_job_page)
 
 indeed_job_page.withColumn(
 	'parsed',
@@ -295,7 +295,22 @@ sqlContext.sql(u"""
 find the geo-location of employers
 '''
 
-sqlContext.read.option('header', True).csv('company_geo_location.csv').registerTempTable('company_geo_location')
+schema = StructType()\
+	.add("company",StringType(),True)\
+	.add("geo_point",StringType(),True)
+
+sqlContext.read\
+	.option('header', False)\
+	.schema(schema)\
+	.csv('company_geo_point.csv/*.csv')\
+	.registerTempTable('company_geo_location')
+
+sqlContext.sql(u"""
+	SELECT company, COLLECT_SET(geo_point)[0] AS geo_point
+	FROM company_geo_location
+	WHERE company IS NOT NULL AND geo_point IS NOT NULL
+	GROUP BY company
+	""").registerTempTable('company_geo_location')
 
 sqlContext.read.json('indeed_job_page_parsed').registerTempTable('indeed_job_page_parsed')
 sqlContext.sql(u"""
@@ -323,10 +338,19 @@ sqlContext.sql(u"""
 	AND c.geo_point IS NOT NULL
 	""").write.mode('Overwrite').parquet('job__job_company_geo_point__geo_point')
 
-
 '''
 calculate the salary of reach job
 '''
+
+udf_salary_amount = udf(
+	indeed_parsing.extract_salary_amount_from_salary_description,
+	ArrayType(FloatType())
+	)
+
+udf_salary_frequency = udf(
+	indeed_parsing.extract_salary_frequency_from_salary_description,
+	ArrayType(StringType())
+	)
 
 sqlContext.read.json('indeed_job_page_parsed').registerTempTable('indeed_job_page_parsed')
 sqlContext.sql(u"""
@@ -343,18 +367,8 @@ sqlContext.sql(u"""
 	) AS temp
 	WHERE parsed.job__job_salary__salary IS NOT NULL
 	""").write.mode('Overwrite').parquet('job__job_salary__salary')
+
 job__job_salary__salary = sqlContext.read.parquet('job__job_salary__salary')
-
-udf_salary_amount = udf(
-	indeed_parsing.extract_salary_amount_from_salary_description,
-	ArrayType(FloatType())
-	)
-
-udf_salary_frequency = udf(
-	indeed_parsing.extract_salary_frequency_from_salary_description,
-	ArrayType(StringType())
-	)
-
 job__job_salary__salary = job__job_salary__salary\
 	.withColumn('salary_amount',
 	udf_salary_amount('job__job_salary__salary')
@@ -362,7 +376,6 @@ job__job_salary__salary = job__job_salary__salary\
 	.withColumn('salary_frequency',
 	udf_salary_frequency('job__job_salary__salary')
 	)
-
 job__job_salary__salary.write.mode('Overwrite').parquet('salary_amount')
 
 sqlContext.read.parquet('salary_amount').registerTempTable('salary_amount')
@@ -413,8 +426,14 @@ sqlContext.sql(u"""
 +--------+-----------------------------+
 |count(1)|count(DISTINCT page_url_hash)|
 +--------+-----------------------------+
-|     177|                          175|
+|     954|                          426|
 +--------+-----------------------------+
+
+{
+  "exists": {
+    "field": "job__job_company_geo_point__geo_point"
+  }
+}
 
 '''
 
