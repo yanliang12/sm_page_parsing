@@ -1,4 +1,3 @@
-
 '''
 https://www.indeed.com/uae/jobs/city/abu-dhabi
 
@@ -6,8 +5,8 @@ docker run -it ^
 -p 0.0.0.0:9364:9364 ^
 -p 0.0.0.0:5311:5311 ^
 -v "E:\dcd_data":/dcd_data/ ^
-yanliang12/yan_dcd:1.0.1
-
+yanliang12/yan_dcd:1.0.1 ^
+bash
 
 
 ####indeed_schedule.sh####
@@ -16,6 +15,8 @@ while true; do
    sleep $[60 * 30]
 done
 ####indeed_schedule.sh####
+
+bash indeed_schedule.sh &
 
 
 '''
@@ -92,8 +93,27 @@ PUT job
 #######
 
 
+first_page_url = 'https://ae.indeed.com/jobs?l=Abu+Dhabi&sort=date'
+#first_page_url = 'https://ae.indeed.com/jobs?q=khalifa+city&l=Abu+Dhabi&sort=date'
+
+
 '''
 create today's folders
+'''
+
+'''
+for demo
+
+https://www.md5hashgenerator.com/
+
+today_folder_job_list_page = '/dcd_data/indeed/demo_list_page'
+today_folder_job_page = '/dcd_data/indeed/demo_page'
+
+'''
+
+
+'''
+for daily job
 '''
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
@@ -117,11 +137,11 @@ get the last 100 jobs
 '''
 
 list_page_urls = [
-{'page_url':'https://ae.indeed.com/jobs?l=Abu+Dhabi&sort=date',}
+{'page_url':first_page_url,}
 ]
 
 for i in range(10,110,10):
-	list_page_url = 'https://ae.indeed.com/jobs?l=Abu+Dhabi&sort=date&start=%d'%(i)
+	list_page_url = '%s&start=%d'%(first_page_url,i)
 	list_page_urls.append({'page_url':list_page_url,})
 
 list_page_urls_df = pandas.DataFrame(list_page_urls)
@@ -137,7 +157,7 @@ download today's list page
 
 yan_web_page_batch_download.args.input_json = '/dcd_data/indeed/indeed_job_list_page_url.json'
 yan_web_page_batch_download.args.local_path = today_folder_job_list_page
-yan_web_page_batch_download.args.sleep_second_per_page = '10'
+yan_web_page_batch_download.args.sleep_second_per_page = '2'
 yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
 yan_web_page_batch_download.args.overwrite = 'true'
 yan_web_page_batch_download.main()
@@ -174,9 +194,10 @@ today_page_url.count()
 download the job pages
 '''
 
+
 yan_web_page_batch_download.args.input_json = 'today_page_url'
 yan_web_page_batch_download.args.local_path = today_folder_job_page
-yan_web_page_batch_download.args.sleep_second_per_page = '5'
+yan_web_page_batch_download.args.sleep_second_per_page = '1'
 yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
 yan_web_page_batch_download.args.overwrite = None
 yan_web_page_batch_download.main()
@@ -200,6 +221,53 @@ indeed_job_page.withColumn(
 		)
 	).drop('page_html')\
 	.write.mode('Overwrite').json('indeed_job_page_parsed')
+
+'''
+find the geo-location of employers
+'''
+schema = StructType()\
+	.add("company",StringType(),True)\
+	.add("geo_point",StringType(),True)
+
+sqlContext.read\
+	.option('header', False)\
+	.schema(schema)\
+	.csv('/dcd_data/indeed/company_geo_point.csv/*.csv')\
+	.registerTempTable('company_geo_location')
+
+sqlContext.sql(u"""
+	SELECT company, COLLECT_SET(geo_point)[0] AS geo_point
+	FROM company_geo_location
+	WHERE company IS NOT NULL AND geo_point IS NOT NULL
+	GROUP BY company
+	""").registerTempTable('company_geo_location')
+
+sqlContext.read.json('indeed_job_page_parsed').registerTempTable('indeed_job_page_parsed')
+sqlContext.sql(u"""
+	SELECT 
+	page_url_hash,
+	crawling_date,
+	parsed.job__job_company_name__company_name 
+	FROM (
+	SELECT 
+	page_url_hash,
+	crawling_date,
+	EXPLODE(parsed) AS parsed
+	FROM indeed_job_page_parsed
+	) AS temp
+	WHERE parsed.job__job_company_name__company_name IS NOT NULL
+	""").write.mode('Overwrite').parquet('job__job_company_name__company_name')
+sqlContext.read.parquet('job__job_company_name__company_name').registerTempTable('job__job_company_name__company_name')
+
+sqlContext.sql(u"""
+	SELECT DISTINCT n.page_url_hash, 
+	c.geo_point AS job__job_company_geo_point__geo_point
+	FROM job__job_company_name__company_name as n,
+	company_geo_location AS c
+	WHERE c.company = n.job__job_company_name__company_name
+	AND c.geo_point IS NOT NULL
+	""").write.mode('Overwrite').parquet('job__job_company_geo_point__geo_point')
+
 
 '''
 find the contract duration from the parsed data
@@ -292,53 +360,6 @@ sqlContext.sql(u"""
 	""").write.mode('Overwrite').parquet('job__job_post_date__date')
 
 '''
-find the geo-location of employers
-'''
-
-schema = StructType()\
-	.add("company",StringType(),True)\
-	.add("geo_point",StringType(),True)
-
-sqlContext.read\
-	.option('header', False)\
-	.schema(schema)\
-	.csv('company_geo_point.csv/*.csv')\
-	.registerTempTable('company_geo_location')
-
-sqlContext.sql(u"""
-	SELECT company, COLLECT_SET(geo_point)[0] AS geo_point
-	FROM company_geo_location
-	WHERE company IS NOT NULL AND geo_point IS NOT NULL
-	GROUP BY company
-	""").registerTempTable('company_geo_location')
-
-sqlContext.read.json('indeed_job_page_parsed').registerTempTable('indeed_job_page_parsed')
-sqlContext.sql(u"""
-	SELECT 
-	page_url_hash,
-	crawling_date,
-	parsed.job__job_company_name__company_name 
-	FROM (
-	SELECT 
-	page_url_hash,
-	crawling_date,
-	EXPLODE(parsed) AS parsed
-	FROM indeed_job_page_parsed
-	) AS temp
-	WHERE parsed.job__job_company_name__company_name IS NOT NULL
-	""").write.mode('Overwrite').parquet('job__job_company_name__company_name')
-sqlContext.read.parquet('job__job_company_name__company_name').registerTempTable('job__job_company_name__company_name')
-
-sqlContext.sql(u"""
-	SELECT DISTINCT n.page_url_hash, 
-	c.geo_point AS job__job_company_geo_point__geo_point
-	FROM job__job_company_name__company_name as n,
-	company_geo_location AS c
-	WHERE c.company = n.job__job_company_name__company_name
-	AND c.geo_point IS NOT NULL
-	""").write.mode('Overwrite').parquet('job__job_company_geo_point__geo_point')
-
-'''
 calculate the salary of reach job
 '''
 
@@ -413,6 +434,9 @@ sqlContext.sql(u"""
 	LEFT JOIN job__job_contract_length__contract_length AS c ON c.page_url_hash = j.page_url_hash
 	""").write.partitionBy("partition_id").mode('Overwrite').json('es_data')
 
+
+'''
+
 sqlContext.read.json('es_data').registerTempTable('es_data')
 
 sqlContext.sql(u"""
@@ -421,7 +445,13 @@ sqlContext.sql(u"""
 	FROM es_data
 	""").show()
 
-'''
+
+sqlContext.sql(u"""
+	SELECT count(*),
+	count(distinct page_url_hash)
+	FROM es_data
+	""").show()
+
 
 +--------+-----------------------------+
 |count(1)|count(DISTINCT page_url_hash)|
