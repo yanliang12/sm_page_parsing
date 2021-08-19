@@ -207,13 +207,6 @@ property_size_amount_extraction(
 '''
 
 
-bed_room_str = '2 Beds'
-
-
-size = re.search(r'[\d\,\.]+', bed_room_str).group()
-size = re.sub(r'[\,]+', '', size)
-size = float(size)
-
 
 
 
