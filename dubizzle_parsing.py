@@ -27,7 +27,7 @@ def parsing_from_list_to_url(
 import pandas
 
 page = pandas.read_json(
-	'/dcd_data/dubizzle/property_list_page/download_date=20210814/1c889523357a0e7e03f5297d0389074e.json',
+	'/dcd_data/dubizzle/property_list_page/download_date=20210814/67496a5ee4510da70ef147179c2a532c.json',
 	orient = 'records',
 	lines = True,
 	)
@@ -65,6 +65,12 @@ re_property_attributes = [
 	re.compile(r'class\=\"Description\_\_DescriptionText[^\"\<\>"]*?\"\>\<span\>(?P<property__property_description__text>.*?)\<\/span\>', flags=re.DOTALL),
 	re.compile(r'\<span data\-testid\=\"listing\-key\-fact\-furnished\" [^\<\>]*?\>\<svg .*?\<\/svg\>\s*\<[^\<\>]*?\>(?P<property__property_furnished__furnished>[^\<\>]*?)\<\/span\>', flags=re.DOTALL),
 	re.compile(r'(?P<property__property_photo_url__photo_url>https\:\/\/images\.dubizzle\.com\/v\d+\/files\/[^\\\/]*?\/image\;s\=\d+x\d+)', flags=re.DOTALL),
+	re.compile(r'name\"\>(?P<property__property_building__building>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"5\"', flags=re.DOTALL),
+	re.compile(r'name\"\>(?P<property__property_community__community>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"4\"', flags=re.DOTALL),
+	re.compile(r'name\"\>(?P<property__property_district__district>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"3\"', flags=re.DOTALL),
+	re.compile(r'name\"\>(?P<property__property_area__area>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"2\"', flags=re.DOTALL),
+	re.compile(r'name\"\>(?P<property__property_city__city>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"1\"', flags=re.DOTALL),
+	re.compile(r'name\"\>(?P<property__property_country__country>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"0\"', flags=re.DOTALL),
 ]
 
 re_amenity_block = re.compile(r'Amenities\<\/h5\>.*?\<hr class', flags=re.DOTALL)
@@ -138,17 +144,26 @@ def page_parsing(
 	###
 	return output
 
+
 '''
 import pandas
 
 page = pandas.read_json(
-	'/dcd_data/dubizzle/property_page/download_date=20210815/e6af055243c28753d22c487adc0a67f6.json',
+	'/dcd_data/dubizzle/property_page/download_date=20210814/d38aec98055697b307ad64a85110f387.json',
 	orient = 'records',
 	lines = True,
 	)
 
 page_html = page['page_html'][0]
 page_url = page['page_url'][0]
+
+
+page_url = 'https://abudhabi.dubizzle.com/property-for-rent/residential/apartmentflat/2021/3/14/species-2-bedroom-with-maid-sea-view-very--3-921/'
+
+page_html = yan_web_page_download.download_page_from_url(
+	page_url = page_url,
+	curl_file = '/dcd_data/dubizzle/dubizzle_page_curl.sh')
+
 
 for e in page_parsing(
 	page_html,
@@ -157,6 +172,49 @@ for e in page_parsing(
 	print(e)
 
 print(page_url)
+
 '''
+
+def property_size_amount_extraction(
+	size_str,
+	):
+	try:
+		size = re.search(r'[\d\,\.]+', size_str).group()
+		size = re.sub(r'[\,]+', '', size)
+		size = float(size)
+		return size
+	except:
+		return None
+
+def property_size_unit_extraction(
+	size_str,
+	):
+	try:
+		return re.search(r'[A-z]+', size_str).group()
+	except:
+		return None
+
+''''
+size_str = '1,000 SqFt'
+
+property_size_unit_extraction(
+	size_str,
+	)
+
+property_size_amount_extraction(
+	size_str,
+	)
+'''
+
+
+bed_room_str = '2 Beds'
+
+
+size = re.search(r'[\d\,\.]+', bed_room_str).group()
+size = re.sub(r'[\,]+', '', size)
+size = float(size)
+
+
+
 
 ##############dubizzle_parsing.py##############
