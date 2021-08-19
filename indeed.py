@@ -157,7 +157,7 @@ download today's list page
 
 yan_web_page_batch_download.args.input_json = '/dcd_data/indeed/indeed_job_list_page_url.json'
 yan_web_page_batch_download.args.local_path = today_folder_job_list_page
-yan_web_page_batch_download.args.sleep_second_per_page = '2'
+yan_web_page_batch_download.args.sleep_second_per_page = '10'
 yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
 yan_web_page_batch_download.args.overwrite = 'true'
 yan_web_page_batch_download.main()
@@ -197,7 +197,7 @@ download the job pages
 
 yan_web_page_batch_download.args.input_json = 'today_page_url'
 yan_web_page_batch_download.args.local_path = today_folder_job_page
-yan_web_page_batch_download.args.sleep_second_per_page = '1'
+yan_web_page_batch_download.args.sleep_second_per_page = '5'
 yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
 yan_web_page_batch_download.args.overwrite = None
 yan_web_page_batch_download.main()
