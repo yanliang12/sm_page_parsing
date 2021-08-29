@@ -5,8 +5,7 @@ docker run -it ^
 -p 0.0.0.0:9364:9364 ^
 -p 0.0.0.0:5311:5311 ^
 -v "E:\dcd_data":/dcd_data/ ^
-yanliang12/yan_dcd:1.0.1 ^
-bash
+yanliang12/yan_dcd:1.0.1 
 
 
 ####indeed_schedule.sh####
@@ -17,7 +16,6 @@ done
 ####indeed_schedule.sh####
 
 bash indeed_schedule.sh &
-
 
 '''
 
@@ -48,7 +46,6 @@ sqlContext = SparkSession.builder.getOrCreate()
 
 #######
 
-
 '''
 
 ingest the data to es to build the dashboard
@@ -63,7 +60,7 @@ es_session = jessica_es.start_es(
 	es_port_number = "9364")
 
 '''
-http://localhost:9466
+http://localhost:9364
 '''
 
 jessica_es.start_kibana(
@@ -71,6 +68,7 @@ jessica_es.start_kibana(
 	kibana_port_number = "5311",
 	es_port_number = "9364",
 	)
+
 
 '''
 http://localhost:5311
@@ -96,7 +94,6 @@ PUT job
 first_page_url = 'https://ae.indeed.com/jobs?l=Abu+Dhabi&sort=date'
 #first_page_url = 'https://ae.indeed.com/jobs?q=khalifa+city&l=Abu+Dhabi&sort=date'
 
-
 '''
 create today's folders
 '''
@@ -119,8 +116,8 @@ for daily job
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
 today = today.strftime("%Y%m%d")
 
-today_folder_job_page = '/dcd_data/indeed/job_page/download_date=%s'%(today)
-today_folder_job_list_page = '/dcd_data/indeed/job_list_page/download_date=%s'%(today)
+today_folder_job_page = '/dcd_data/indeed/job_page/source=date%s'%(today)
+today_folder_job_list_page = '/dcd_data/indeed/job_list_page/source=date%s'%(today)
 
 try:
 	os.makedirs(today_folder_job_page)
@@ -193,8 +190,6 @@ today_page_url.count()
 '''
 download the job pages
 '''
-
-
 yan_web_page_batch_download.args.input_json = 'today_page_url'
 yan_web_page_batch_download.args.local_path = today_folder_job_page
 yan_web_page_batch_download.args.sleep_second_per_page = '5'
@@ -223,8 +218,24 @@ indeed_job_page.withColumn(
 	.write.mode('Overwrite').json('indeed_job_page_parsed')
 
 '''
+cp -r indeed_job_page_parsed /dcd_data/temp/
+cp -r /dcd_data/temp/indeed_job_page_parsed ./
+'''
+
+'''
 find the geo-location of employers
 '''
+
+def geo_point_processing(
+	input,
+	):
+	try:
+		return re.sub(r'[^\d\,\.\-]+', '', input)
+	except:
+		return None
+
+sqlContext.udf.register("geo_point_processing", geo_point_processing, StringType())
+
 schema = StructType()\
 	.add("company",StringType(),True)\
 	.add("geo_point",StringType(),True)
@@ -236,11 +247,19 @@ sqlContext.read\
 	.registerTempTable('company_geo_location')
 
 sqlContext.sql(u"""
-	SELECT company, COLLECT_SET(geo_point)[0] AS geo_point
+	SELECT company, COLLECT_SET(
+	geo_point_processing(geo_point))[0] AS geo_point
 	FROM company_geo_location
 	WHERE company IS NOT NULL AND geo_point IS NOT NULL
 	GROUP BY company
 	""").registerTempTable('company_geo_location')
+
+'''
+sqlContext.sql(u"""
+	SELECT * FROM company_geo_location
+	WHERE company = "CIMS Medical Recruitment"
+	""").show()
+'''
 
 sqlContext.read.json('indeed_job_page_parsed').registerTempTable('indeed_job_page_parsed')
 sqlContext.sql(u"""
@@ -267,7 +286,6 @@ sqlContext.sql(u"""
 	WHERE c.company = n.job__job_company_name__company_name
 	AND c.geo_point IS NOT NULL
 	""").write.mode('Overwrite').parquet('job__job_company_geo_point__geo_point')
-
 
 '''
 find the contract duration from the parsed data
@@ -432,8 +450,7 @@ sqlContext.sql(u"""
 	LEFT JOIN job__job_company_geo_point__geo_point AS g ON g.page_url_hash = j.page_url_hash
 	LEFT JOIN salary_amount1 AS s ON s.page_url_hash = j.page_url_hash
 	LEFT JOIN job__job_contract_length__contract_length AS c ON c.page_url_hash = j.page_url_hash
-	""").write.partitionBy("partition_id").mode('Overwrite').json('es_data')
-
+	""").write.mode('Overwrite').json('es_data')
 
 '''
 
@@ -467,27 +484,23 @@ sqlContext.sql(u"""
 
 '''
 
-es_folders = listdir('es_data') 
-es_folders = ['es_data/%s'%(f) for f in es_folders]
+json_folder = 'es_data'
+files = [join(json_folder, f) 
+	for f in listdir(json_folder) 
+	if isfile(join(json_folder, f))
+	and bool(re.search(r'.+\.json$', f))]
 
-files = []
-for e in es_folders:
-	try:
-		files += [join(e, f) 
-			for f in listdir(e) 
-			if isfile(join(e, f))
-			and bool(re.search(r'.+\.json$', f))]
-	except:
-		pass
 
 for f in files:
 	try:
-		df = jessica_es.ingest_json_to_es_index(
+		print('ingesting %s'%(f))
+		df = ingest_json_to_es_index(
 			json_file = f,
 			es_index = "job",
 			es_session = es_session,
 			document_id_feild = 'page_url_hash',
 			)
+		print(df)
 	except Exception as e:
 		print(e)
 
