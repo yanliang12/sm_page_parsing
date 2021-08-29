@@ -494,7 +494,7 @@ files = [join(json_folder, f)
 for f in files:
 	try:
 		print('ingesting %s'%(f))
-		df = ingest_json_to_es_index(
+		df = jessica_es.ingest_json_to_es_index(
 			json_file = f,
 			es_index = "job",
 			es_session = es_session,
