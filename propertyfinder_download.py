@@ -1,4 +1,21 @@
-#######
+#######propertyfinder_download.py#######
+'''
+docker run -it ^
+-v "E:\dcd_data":/dcd_data/ ^
+yanliang12/yan_dcd:1.0.1
+
+python3 propertyfinder_download.py &
+
+####propertyfinder_download.sh####
+while true; do
+   python3 propertyfinder_download.py &
+   sleep $[60 * 120]
+done
+####propertyfinder_download.sh####
+
+bash propertyfinder_download.sh &
+
+'''
 
 import os
 import re
@@ -112,3 +129,5 @@ yan_web_page_batch_download.args.sleep_second_per_page = None
 yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
 yan_web_page_batch_download.args.overwrite = None
 yan_web_page_batch_download.main()
+
+#######propertyfinder_download.py#######
