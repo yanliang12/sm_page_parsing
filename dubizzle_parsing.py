@@ -58,17 +58,17 @@ re_property_attributes = [
 	re.compile(r'\<svg .*?SizeFilled\_svg\_\_a.*?\>(?P<property__property_size__size>[^\<\>]*?)\<\/span\>', flags=re.DOTALL),
 	re.compile(r'\>(?P<property__property_bedroom_number__bedroom_number>[^\<\>]*?)\<\/span\>\<span data\-testid\=\"listing\-key\-fact\-bathrooms\"', flags=re.DOTALL),
 	re.compile(r'\>(?P<property__property_bath_number__bath_number>[^\<\>]*?)\<\/span\>\<span data\-testid\=\"listing\-key\-fact\-size', flags=re.DOTALL),
-	re.compile(r'phoneNumber\\\"\:\\\"(?P<property__property_agent_phone__phone>[^\"\\]*?)\\\"', flags=re.DOTALL),
+	re.compile(r'phoneNumber\\\"\:\\\"(?P<property__property_broker_phone__phone>[^\"\\]*?)\\\"', flags=re.DOTALL),
 	re.compile(r'\\\"dedLicenceNo\\\"\:\\\"(?P<property__property_ded_licence_number__licence_number>[^\"\\]*?)\\\"\,', flags=re.DOTALL),
-	re.compile(r'agent_name\\\"\:\\\"(?P<property__property_agent_name__agent_name>[^\"]*?)\\\"', flags=re.DOTALL),
-	re.compile(r'agent_logo\\\"\:\\\"(?P<property__property_agent_logo_url__photo_url>[^\"]*?)\\\"', flags=re.DOTALL),
+	re.compile(r'broker_name\\\"\:\\\"(?P<property__property_broker_name__broker_name>[^\"]*?)\\\"', flags=re.DOTALL),
+	re.compile(r'broker_logo\\\"\:\\\"(?P<property__property_broker_logo_url__photo_url>[^\"]*?)\\\"', flags=re.DOTALL),
 	re.compile(r'class\=\"Description\_\_DescriptionText[^\"\<\>"]*?\"\>\<span\>(?P<property__property_description__text>.*?)\<\/span\>', flags=re.DOTALL),
 	re.compile(r'\<span data\-testid\=\"listing\-key\-fact\-furnished\" [^\<\>]*?\>\<svg .*?\<\/svg\>\s*\<[^\<\>]*?\>(?P<property__property_furnished__furnished>[^\<\>]*?)\<\/span\>', flags=re.DOTALL),
 	re.compile(r'(?P<property__property_photo_url__photo_url>https\:\/\/images\.dubizzle\.com\/v\d+\/files\/[^\\\/]*?\/image\;s\=\d+x\d+)', flags=re.DOTALL),
 	re.compile(r'name\"\>(?P<property__property_building__building>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"5\"', flags=re.DOTALL),
-	re.compile(r'name\"\>(?P<property__property_community__community>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"4\"', flags=re.DOTALL),
-	re.compile(r'name\"\>(?P<property__property_district__district>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"3\"', flags=re.DOTALL),
-	re.compile(r'name\"\>(?P<property__property_area__area>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"2\"', flags=re.DOTALL),
+	re.compile(r'name\"\>(?P<property__property_sub_community__sub_community>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"4\"', flags=re.DOTALL),
+	re.compile(r'name\"\>(?P<property__property_community__community>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"3\"', flags=re.DOTALL),
+	re.compile(r'name\"\>(?P<property__property_district__district>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"2\"', flags=re.DOTALL),
 	re.compile(r'name\"\>(?P<property__property_city__city>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"1\"', flags=re.DOTALL),
 	re.compile(r'name\"\>(?P<property__property_country__country>[^\<\>]*?)\<\/span\>\<\/a\><meta property\=\"position" content\=\"0\"', flags=re.DOTALL),
 ]
@@ -163,7 +163,6 @@ page_url = 'https://abudhabi.dubizzle.com/property-for-rent/residential/apartmen
 page_html = yan_web_page_download.download_page_from_url(
 	page_url = page_url,
 	curl_file = '/dcd_data/dubizzle/dubizzle_page_curl.sh')
-
 
 for e in page_parsing(
 	page_html,
