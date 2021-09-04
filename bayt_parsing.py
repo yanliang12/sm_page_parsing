@@ -166,7 +166,7 @@ def page_parsing(
 	###
 	return output
 
-
+'''
 import pandas
 
 page = pandas.read_json(
@@ -186,6 +186,6 @@ for e in page_parsing(
 
 
 print(page_url)
-
+'''
 
 ###########bayt_parsing.py###########
