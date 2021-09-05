@@ -51,7 +51,6 @@ re_page_url_attributes = [
 	re.compile(r'jobs\/(?P<job__job_indeed_id__job_id>[^\\\/]*?)\/', flags=re.DOTALL),
 ]
 
-
 attribute_name_needs_clearning = [
 'job__job_description__text',
 'job__job_required_license_certification__license_certification',
@@ -103,18 +102,6 @@ re_job_attributes = [
 	re.compile(r'Date Posted\: \<span\>[A-z]+ (?P<job__job_post_day__day>\d+)\<\/span\>', flags=re.DOTALL),
 	re.compile(r'\<dt\>Job Location\<\/dt\>\s*\<dd\>(?P<job__job_location__location>[^\<\>]*?)\<\/dd\>', flags=re.DOTALL),
 	###
-	re.compile(r'\<div class\=\"[^\"]*?\"\>\<a href\=\"(?P<job__job_company_url__url>https\:\/\/ae\.indeed\.com\/cmp\/[^\"]*?)\" [^\<\>]*?>Randstad\<\/a\><\/div\>', flags=re.DOTALL),
-	re.compile(r'\<div class\=\"icl\-u\-lg\-mr\-\-sm icl\-u\-xs\-mr\-\-xs\"\>(?P<job__job_company_name__company_name>[^\<\>]*?)\<\/div\>', flags=re.DOTALL),
-	re.compile(r'\<div class\=\"icl\-u\-lg\-mr\-\-sm icl\-u\-xs\-mr\-\-xs\"\>[^\<\>]*?\<\/div\>\<\/div\>\<div\>(?P<job__job_location__location>[^\<\>]*?)\<\/div\>', flags=re.DOTALL),
-	re.compile(r'\<\/div\>\<div id\=\"jobDescriptionText\" class\=\"jobsearch\-jobDescriptionText\"\>(?P<job__job_description__text>.*?)\<\/div\>\<div class\=\"jobsearch\-JobMetadataFooter\"\>', flags=re.DOTALL),
-	re.compile(r'Footer\"\>\<div\>(?P<job__job_post_duration__duration>[^\<\>]*?)\<\/div\>\<div class\=\"mosaic', flags=re.DOTALL),
-	re.compile(r'\<div\>(?P<job__job_post_duration__duration>[^\<\>]*?)\<\/div\>\<div id\=\"originalJobLinkContainer', flags=re.DOTALL),
-	re.compile(r'Work Remotely\:\<\/p\>\<ul\>\<li\>(?P<job__job_work_remotely__work_remotely>[^\<\>]*?)\<\/li\>', flags=re.DOTALL),
-	re.compile(r'\<p\>COVID-19 considerations\:\<br\/\>(?P<job__job_covid_consideration__covid_consideration>[^\<\>]*?)\<\/p\>', flags=re.DOTALL),
-	re.compile(r'Ability to commute\/relocate\:\<\/p\>\<ul\>\<li\>(?P<job__job_ability_to_commute_relocate__ability_to_commute_relocate>[^\<\>]*?)\<\/li\>', flags=re.DOTALL),
-	re.compile(r'Duty Schedule\:\s*(?P<job__job_duty_schedule__duty_schedule>[^\<\>]*?)\s*\<\/p\>', flags=re.DOTALL),
-	re.compile(r'Rest Days\:\s*(?P<job__job_rest_days__rest_days>[^\<\>]*?)\s*\<\/p\>', flags=re.DOTALL),
-	re.compile(r'\<p\>License\/Certification\:\<\/p\>\<ul\>(?P<job__job_required_license_certification__license_certification>.*?)\<\/ul\>', flags=re.DOTALL),
 ]
 
 def page_parsing(
@@ -187,5 +174,59 @@ for e in page_parsing(
 
 print(page_url)
 '''
+
+
+month_lookup = {
+	'January':1,
+	'February':2,
+	'March':3,
+	'April':4,
+	'May':5,
+	'June':6,
+	'July':7,
+	'August':8,
+	'September':9,
+	'October':10,
+	'November':11,
+	'December':12,
+	'Jan':1,
+	'Feb':2,
+	'Mar':3,
+	'Apr':4,
+	'May':5,
+	'Jun':6,
+	'Jul':7,
+	'Aug':8,
+	'Sep':9,
+	'Oct':10,
+	'Nov':11,
+	'Dec':12,
+}
+
+
+def generate_post_date(
+	month_str,
+	day_str,
+	crawling_date,
+	):
+	try:
+		month = month_lookup[month_str]
+		day = int(day_str)
+		year = int(crawling_date.split('-')[0])
+		return '%04d-%02d-%02d'%(
+			year,
+			month,
+			day,
+			)
+	except:
+		return None
+
+'''
+generate_post_date(
+	month_str = "Aug",
+	day_str = "30",
+	crawling_date = "2021-09-04",
+	)
+'''	
 
 ###########bayt_parsing.py###########
