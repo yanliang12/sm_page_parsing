@@ -1,8 +1,11 @@
+############property_rent_processing.py################
 '''
 
 docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
 yanliang12/yan_dcd:1.0.1 
+
+python3 property_rent_processing.py &
 
 '''
 
@@ -211,4 +214,6 @@ sqlContext.sql(u"""
 	LEFT JOIN property__property_rental_price_amount__number AS p ON p.page_url_hash = j.page_url_hash
 	LEFT JOIN property__property_size__size AS s ON s.page_url_hash = j.page_url_hash
 	LEFT JOIN property__property_bedroom_number__bedroom_number AS b ON b.page_url_hash = j.page_url_hash
-	""").write.mode('Overwrite').json('es_data')
+	""").write.mode('Overwrite').json('/dcd_data/temp/property_rent_es_data')
+
+############property_rent_processing.py################
