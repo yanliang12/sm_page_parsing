@@ -3,7 +3,7 @@
 
 docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
-yanliang12/yan_dcd:1.0.1 
+yanliang12/yan_dcd:1.0.1
 
 python3 property_rent_processing.py &
 
@@ -63,7 +63,7 @@ page_html.withColumn(
 #########
 
 today_folder_page_html = '/dcd_data/dubizzle/property_page'
-parsed_json_path = '/dcd_data/temp/property_parsed/website=website=abudhabi.dubizzle.com'
+parsed_json_path = '/dcd_data/temp/property_parsed/website=abudhabi.dubizzle.com'
 
 page_html = sqlContext.read.json(today_folder_page_html)
 
