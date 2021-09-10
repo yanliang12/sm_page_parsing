@@ -1,6 +1,5 @@
 ###########dubizzle_download.py#############
 '''
-https://abudhabi.dubizzle.com/en/property-for-rent/residential/?sort=newest&page=500
 
 docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
@@ -9,8 +8,8 @@ yanliang12/yan_dcd:1.0.1
 
 ####dubizzle_download.sh####
 while true; do
-   python3 dubizzle.py
-   sleep $[60 * 60]
+   python3 dubizzle_download.py
+   sleep $[60 * 120]
 done
 ####dubizzle_download.sh####
 
@@ -46,7 +45,6 @@ sqlContext = SparkSession.builder.getOrCreate()
 
 import dubizzle_parsing
 
-
 #######
 
 page_list_urls = []
@@ -69,10 +67,10 @@ create today's folders
 '''
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
-today = today.strftime("%Y%m")
+today = today.strftime("date%Y%m")
 
-today_folder_property_page = '/dcd_data/dubizzle/property_page/source=date%s'%(today)
-today_folder_property_list_page = '/dcd_data/dubizzle/property_list_page/source=date%s'%(today)
+today_folder_property_page = '/dcd_data/dubizzle/property_page/source=%s'%(today)
+today_folder_property_list_page = '/dcd_data/dubizzle/property_list_page/source=%s'%(today)
 
 try:
 	os.makedirs(today_folder_property_page)
@@ -124,9 +122,7 @@ sqlContext.sql(u"""
 today_page_url = sqlContext.read.json('today_page_url')
 today_page_url.show()
 today_page_url.count()
-'''
-2243
-'''
+
 
 '''
 download the property pages
@@ -135,7 +131,7 @@ download the property pages
 yan_web_page_batch_download.args.input_json = 'today_page_url'
 yan_web_page_batch_download.args.local_path = today_folder_property_page
 yan_web_page_batch_download.args.curl_file = '/dcd_data/dubizzle_page_curl.sh'
-yan_web_page_batch_download.args.sleep_second_per_page = '10'
+yan_web_page_batch_download.args.sleep_second_per_page = '20'
 yan_web_page_batch_download.args.page_regex = 'doctype'
 yan_web_page_batch_download.args.overwrite = None
 yan_web_page_batch_download.main()
