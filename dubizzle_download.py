@@ -49,7 +49,7 @@ import dubizzle_parsing
 
 page_list_urls = []
 
-for i in range(0,10):
+for i in range(0,5):
 	page_list_url = 'https://abudhabi.dubizzle.com/en/property-for-rent/residential/?sort=newest&page=%d'%(i)
 	page_list_urls.append({
 		'page_url':page_list_url
@@ -131,7 +131,7 @@ download the property pages
 yan_web_page_batch_download.args.input_json = 'today_page_url'
 yan_web_page_batch_download.args.local_path = today_folder_property_page
 yan_web_page_batch_download.args.curl_file = '/dcd_data/dubizzle_page_curl.sh'
-yan_web_page_batch_download.args.sleep_second_per_page = '20'
+yan_web_page_batch_download.args.sleep_second_per_page = '10'
 yan_web_page_batch_download.args.page_regex = 'doctype'
 yan_web_page_batch_download.args.overwrite = None
 yan_web_page_batch_download.main()
