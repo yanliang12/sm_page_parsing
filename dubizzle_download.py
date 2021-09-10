@@ -9,7 +9,7 @@ yanliang12/yan_dcd:1.0.1
 ####dubizzle_download.sh####
 while true; do
    python3 dubizzle_download.py
-   sleep $[60 * 120]
+   sleep $[60 * 60]
 done
 ####dubizzle_download.sh####
 
@@ -49,7 +49,7 @@ import dubizzle_parsing
 
 page_list_urls = []
 
-for i in range(0,5):
+for i in range(0,8):
 	page_list_url = 'https://abudhabi.dubizzle.com/en/property-for-rent/residential/?sort=newest&page=%d'%(i)
 	page_list_urls.append({
 		'page_url':page_list_url
@@ -120,8 +120,13 @@ sqlContext.sql(u"""
 	) AS temp
 	""").write.mode('Overwrite').json('today_page_url')
 today_page_url = sqlContext.read.json('today_page_url')
-today_page_url.show()
-today_page_url.count()
+today_page_url.show(20, False)
+today_page_url.registerTempTable('today_page_url')
+
+sqlContext.sql(u"""
+	SELECT COUNT(*)
+	FROM today_page_url
+	""").show()
 
 
 '''
