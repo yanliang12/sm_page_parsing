@@ -1,6 +1,6 @@
 ####dubizzle_download.sh####
 while true; do
-   python3 dubizzle.py
+   python3 dubizzle_download.py
    sleep $[60 * 60]
 done
 ####dubizzle_download.sh####
