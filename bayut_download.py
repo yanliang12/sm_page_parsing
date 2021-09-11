@@ -46,6 +46,8 @@ sqlContext = SparkSession.builder.getOrCreate()
 
 #######
 
+import bayut_parsing
+
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
 today = today.strftime("data%Y%m")
 
@@ -99,7 +101,7 @@ parsing list page to get the page url
 '''
 
 parsing_from_list_to_url = udf(
-	parsing_from_list_to_url,
+	bayut_parsing.parsing_from_list_to_url,
 	ArrayType(MapType(StringType(), StringType())))
 
 sqlContext.read.json(today_folder_page_list_html)\
