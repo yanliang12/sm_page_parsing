@@ -140,6 +140,7 @@ def page_parsing(
 	output = [dict(t) for t in {tuple(d.items()) for d in output}]
 	return output
 
+'''
 
 import pandas
 
@@ -159,5 +160,6 @@ output = page_parsing(
 
 for e in output:
 	print(e)
+'''
 
 ###########bayut_parsing.py#############
