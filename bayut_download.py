@@ -93,4 +93,45 @@ yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
 yan_web_page_batch_download.args.overwrite = 'true'
 yan_web_page_batch_download.main()
 
+
+'''
+parsing list page to get the page url
+'''
+
+parsing_from_list_to_url = udf(
+	parsing_from_list_to_url,
+	ArrayType(MapType(StringType(), StringType())))
+
+sqlContext.read.json(today_folder_page_list_html)\
+	.withColumn(
+	'parsed',
+	parsing_from_list_to_url(
+		'page_html',
+		'page_url')
+	).drop('page_html').write.mode('Overwrite').parquet('list_page_parsed')
+
+sqlContext.read.parquet('list_page_parsed').registerTempTable('parsed')
+sqlContext.sql(u"""
+	SELECT DISTINCT parsed.page_url
+	FROM (
+	SELECT EXPLODE(parsed) AS parsed
+	FROM parsed
+	) AS temp
+	""").write.mode('Overwrite').json('today_page_url')
+today_page_url = sqlContext.read.json('today_page_url')
+today_page_url.show(100, False)
+today_page_url.count()
+#216
+
+'''
+download the job pages
+'''
+yan_web_page_batch_download.args.input_json = 'today_page_url'
+yan_web_page_batch_download.args.local_path = today_folder_page_html
+yan_web_page_batch_download.args.sleep_second_per_page = None
+yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
+yan_web_page_batch_download.args.overwrite = None
+yan_web_page_batch_download.main()
+
+
 #########bayut_download.py#########
