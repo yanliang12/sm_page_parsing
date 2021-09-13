@@ -6,6 +6,8 @@ docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
 yanliang12/yan_dcd:1.0.1 
 
+bash indeed_download.sh &
+
 
 ####indeed_download.sh####
 while true; do
@@ -14,7 +16,6 @@ while true; do
 done
 ####indeed_download.sh####
 
-bash indeed_download.sh &
 
 '''
 
@@ -52,10 +53,10 @@ for daily job
 '''
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
-today = today.strftime("%Y%m%d")
+today = today.strftime("date%Y%m")
 
-today_folder_job_page = '/dcd_data/indeed/job_page/source=date%s'%(today)
-today_folder_job_list_page = '/dcd_data/indeed/job_list_page/source=date%s'%(today)
+today_folder_job_page = '/dcd_data/indeed/job_page/source=%s'%(today)
+today_folder_job_list_page = '/dcd_data/indeed/job_list_page/source=%s'%(today)
 
 try:
 	os.makedirs(today_folder_job_page)
