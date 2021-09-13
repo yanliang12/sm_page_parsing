@@ -1,19 +1,21 @@
 #######bayt_download.py#######
 '''
+
 docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
 yanliang12/yan_dcd:1.0.1
 
-python3 bayt_download.py &
+bash bayt_download.sh &
+
+
 
 ####bayt_download.sh####
 while true; do
    python3 bayt_download.py &
-   sleep $[60 * 240]
+   sleep $[60 * 60]
 done
 ####bayt_download.sh####
 
-bash bayt_download.sh &
 
 '''
 
@@ -44,9 +46,9 @@ sqlContext = SparkSession.builder.getOrCreate()
 #######
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
-today = today.strftime("%Y%m%d")
+today = today.strftime("date%Y%m")
 
-today_folder_page_html = '/dcd_data/bayt/page_html/source=date%s'%(today)
+today_folder_page_html = '/dcd_data/bayt/page_html/source=%s'%(today)
 today_folder_page_list_html = '/dcd_data/bayt/page_list_html/source=date%s'%(today)
 
 try:
