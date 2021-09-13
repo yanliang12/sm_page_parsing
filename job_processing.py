@@ -1,8 +1,14 @@
+########job_processing.py############
 '''
 
 docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
 yanliang12/yan_dcd:1.0.1 
+
+python3 job_processing.py 
+
+python3 job_dashboard.py & 
+
 
 '''
 
@@ -32,9 +38,13 @@ from pyspark.sql.functions import *
 sc = SparkContext("local")
 sqlContext = SparkSession.builder.getOrCreate()
 
-############
 
+############
 page_html_json = '/dcd_data/indeed/job_page'
+
+print('processing the pages of {}'.format(page_html_json))
+
+
 page_html = sqlContext.read.json(page_html_json)
 
 udf_job_page_parsing = udf(
@@ -50,9 +60,14 @@ page_html.withColumn(
 	).drop('page_html')\
 	.write.mode('Overwrite').json('/dcd_data/temp/job_parsed/website=ae.indeed.com')
 
+print('processing of {} is completed'.format(page_html_json))
+
 ############
 
 page_html_json = '/dcd_data/bayt/page_html'
+
+print('processing the pages of {}'.format(page_html_json))
+
 page_html = sqlContext.read.json(page_html_json)
 
 udf_job_page_parsing = udf(
@@ -68,7 +83,11 @@ page_html.withColumn(
 	).drop('page_html')\
 	.write.mode('Overwrite').json('/dcd_data/temp/job_parsed/website=www.bayt.com')
 
+print('processing of {} is completed'.format(page_html_json))
+
 ############
+
+print('enriching the parsed pages')
 
 indeed_job_page_parsed = sqlContext.read.json('/dcd_data/temp/job_parsed')
 indeed_job_page_parsed.registerTempTable('indeed_job_page_parsed')
@@ -350,3 +369,7 @@ sqlContext.sql(u"""
 	LEFT JOIN salary_amount1 AS s ON s.page_url_hash = j.page_url_hash
 	LEFT JOIN job__job_contract_length__contract_length AS c ON c.page_url_hash = j.page_url_hash
 	""").write.mode('Overwrite').json('/dcd_data/temp/job_es_data')
+
+print('enrichment is complete and the es data is ready')
+
+########job_processing.py############
