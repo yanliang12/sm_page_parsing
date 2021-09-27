@@ -1,10 +1,12 @@
 #######propertyfinder_download.py#######
 '''
+
 docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
-yanliang12/yan_dcd:1.0.1
+yanliang12/yan_dcd_downloader:1.0.1
 
-python3 propertyfinder_download.py &
+bash propertyfinder_download.sh &
+
 
 ####propertyfinder_download.sh####
 while true; do
@@ -13,7 +15,6 @@ while true; do
 done
 ####propertyfinder_download.sh####
 
-bash propertyfinder_download.sh &
 
 '''
 
@@ -44,7 +45,7 @@ sqlContext = SparkSession.builder.getOrCreate()
 #######
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
-today = today.strftime("%Y%m%d")
+today = today.strftime("%Y%m")
 
 today_folder_page_html = '/dcd_data/propertyfinder/page_html/source=date%s'%(today)
 today_folder_page_list_html = '/dcd_data/propertyfinder/page_list_html/source=date%s'%(today)
