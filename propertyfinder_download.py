@@ -45,10 +45,10 @@ sqlContext = SparkSession.builder.getOrCreate()
 #######
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
-today = today.strftime("%Y%m")
+today = today.strftime("date%Y%m")
 
-today_folder_page_html = '/dcd_data/propertyfinder/page_html/source=date%s'%(today)
-today_folder_page_list_html = '/dcd_data/propertyfinder/page_list_html/source=date%s'%(today)
+today_folder_page_html = '/dcd_data/propertyfinder/page_html/source=%s'%(today)
+today_folder_page_list_html = '/dcd_data/propertyfinder/page_list_html/source=%s'%(today)
 
 try:
 	os.makedirs(today_folder_page_html)
