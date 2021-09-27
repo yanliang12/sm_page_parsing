@@ -1,10 +1,16 @@
+###########job_dashboard.py###########
 '''
 
 docker run -it ^
 -p 0.0.0.0:9364:9364 ^
 -p 0.0.0.0:5311:5311 ^
 -v "E:\dcd_data":/dcd_data/ ^
-yanliang12/yan_dcd:1.0.1 
+yanliang12/yan_sm_download:1.0.1 
+
+python3 job_processing.py 
+
+python3 job_dashboard.py & 
+
 
 '''
 
@@ -83,3 +89,5 @@ for f in files:
 	except Exception as e:
 		print(e)
 
+
+###########job_dashboard.py###########

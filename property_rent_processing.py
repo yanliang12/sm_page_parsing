@@ -3,9 +3,9 @@
 
 docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
-yanliang12/yan_dcd:1.0.1
+yanliang12/yan_sm_download:1.0.1
 
-python3 property_rent_processing.py
+python3 property_rent_processing.py &
 
 python3 property_rent_dashboard.py &
 
@@ -48,9 +48,11 @@ parsing the page
 today_folder_page_html = '/dcd_data/propertyfinder/page_html'
 parsed_json_path = '/dcd_data/temp/property_parsed/website=www.propertyfinder.ae'
 
-print('processing the pages of {}'.format(today_folder_page_html))
+print('load the pages of {}'.format(today_folder_page_html))
 
 page_html = sqlContext.read.json(today_folder_page_html)
+
+print('processing the pages of {}'.format(today_folder_page_html))
 
 udf_page_parsing = udf(
 	propertyfinder_parsing.page_parsing,
@@ -67,15 +69,16 @@ page_html.withColumn(
 
 print('processing of {} is completed'.format(today_folder_page_html))
 
-
 #########
 
 today_folder_page_html = '/dcd_data/dubizzle/property_page'
 parsed_json_path = '/dcd_data/temp/property_parsed/website=abudhabi.dubizzle.com'
 
-print('processing the pages of {}'.format(today_folder_page_html))
+print('loading the pages of {}'.format(today_folder_page_html))
 
 page_html = sqlContext.read.json(today_folder_page_html)
+
+print('processing the pages of {}'.format(today_folder_page_html))
 
 udf_property_page_parsing = udf(
 	dubizzle_parsing.page_parsing,

@@ -6,7 +6,9 @@ docker run -it ^
 -p 0.0.0.0:9377:9377 ^
 -p 0.0.0.0:5794:5794 ^
 -v "E:\dcd_data":/dcd_data/ ^
-yanliang12/yan_dcd:1.0.1 
+yanliang12/yan_sm_download:1.0.1 
+
+python3 property_rent_processing.py
 
 python3 property_rent_dashboard.py &
 
