@@ -1,20 +1,19 @@
-###########dubizzle_download.py#############
+###########dubizzle_property_rent_download.py#############
 '''
 
 docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
 yanliang12/yan_dcd_downloader:1.0.1
 
-bash dubizzle_download.sh &
+bash dubizzle_property_rent_download.sh &
 
 
-
-####dubizzle_download.sh####
+####dubizzle_property_rent_download.sh####
 while true; do
-   python3 dubizzle_download.py
+   python3 dubizzle_property_rent_download.py
    sleep $[60 * 60]
 done
-####dubizzle_download.sh####
+####dubizzle_property_rent_download.sh####
 
 
 '''
@@ -144,4 +143,4 @@ yan_web_page_batch_download.args.page_regex = 'doctype'
 yan_web_page_batch_download.args.overwrite = None
 yan_web_page_batch_download.main()
 
-###########dubizzle_download.py#############
+###########dubizzle_property_rent_download.py#############
