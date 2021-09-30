@@ -3,8 +3,7 @@
 
 docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
-yanliang12/yan_sm_download:1.0.1 ^
-bash
+yanliang12/yan_sm_download:1.0.1
 
 bash dubizzle_property_sale_download.sh &
 
@@ -45,6 +44,7 @@ sqlContext = SparkSession.builder.getOrCreate()
 
 #######
 
+import dubizzle_property_sale_parsing
 
 #######
 
@@ -102,7 +102,7 @@ parsing the property page url
 property_list_page = sqlContext.read.json(today_folder_property_list_page)
 
 udf_parsing_from_list_to_url = udf(
-	parsing_from_list_to_url,
+	dubizzle_property_sale_parsing.parsing_from_list_to_url,
 	ArrayType(MapType(StringType(), StringType())))
 
 property_list_page.withColumn(
