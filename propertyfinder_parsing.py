@@ -2,12 +2,32 @@
 import re
 import datetime
 
+page_url_prefix = 'https://www.propertyfinder.ae'
+
+###########
+
+re_sale_page_url = re.compile(
+	r'\<a href\=\"(?P<page_url>\/en\/buy\/[^\"]*?\.html)\" class\=\"',
+	flags=re.DOTALL)
+
+def parsing_from_sale_list_to_url(
+	page_html,
+	page_url,
+	):
+	output = []
+	for m in re.finditer(
+		re_sale_page_url,
+		page_html):
+		page_url1 = m.group('page_url')
+		page_url1 = '%s%s'%(page_url_prefix, page_url1)
+		output.append({'page_url':page_url1})
+	return output
+
 ###########
 
 re_page_url = re.compile(
 	r'\<a href\=\"(?P<page_url>\/en\/rent\/[^\"]*?\.html)\" class\=\"',
 	flags=re.DOTALL)
-page_url_prefix = 'https://www.propertyfinder.ae'
 
 def parsing_from_list_to_url(
 	page_html,
