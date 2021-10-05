@@ -47,7 +47,7 @@ sqlContext = SparkSession.builder.getOrCreate()
 
 page_list_urls = []
 
-for i in range(1,50):
+for i in range(1,10):
 	page_list_url = 'https://abudhabi.dubizzle.com/search/?page={}&keywords=&is_basic_search_widget=1&is_search=1'.format(i)
 	page_list_urls.append({
 		'page_url':page_list_url
@@ -78,7 +78,6 @@ try:
 except Exception as e:
 	print(e)
 
-
 #######
 
 yan_web_page_batch_download.args.input_json = 'page_list_urls.json'
@@ -88,7 +87,6 @@ yan_web_page_batch_download.args.overwrite = 'true'
 yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
 yan_web_page_batch_download.args.sleep_second_per_page = '10'
 yan_web_page_batch_download.main()
-
 
 ##########
 
