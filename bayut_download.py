@@ -4,10 +4,9 @@
 
 docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
-yanliang12/yan_dcd:1.0.1
+yanliang12/yan_sm_download:1.0.1 
 
 bash bayut_download.sh &
-
 
 
 ####bayut_download.sh####
@@ -46,8 +45,6 @@ sqlContext = SparkSession.builder.getOrCreate()
 
 #######
 
-import bayut_parsing
-
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
 today = today.strftime("data%Y%m")
 
@@ -66,15 +63,21 @@ except Exception as e:
 
 #######
 
-first_page_url = 'https://www.bayut.com/to-rent/property/abu-dhabi/?sort=date_desc'
+list_page_urls = []
 
-list_page_urls = [
-	{'page_url':first_page_url,}
-]
+list_page_urls.append({'page_url':'https://www.bayut.com/to-rent/property/abu-dhabi/?sort=date_desc'})
 
-for i in range(2,10):
+for i in range(2,11):
 	list_page_url = 'https://www.bayut.com/to-rent/property/abu-dhabi/page-{}/?sort=date_desc'.format(i)
 	list_page_urls.append({'page_url':list_page_url,})
+
+list_page_urls.append({'page_url':'https://www.bayut.com/for-sale/property/abu-dhabi/?sort=date_desc'})
+
+for i in range(2,11):
+	list_page_url = 'https://www.bayut.com/for-sale/property/abu-dhabi/page-{}/?sort=date_desc'.format(i)
+	list_page_urls.append({'page_url':list_page_url,})
+
+#######
 
 list_page_urls_df = pandas.DataFrame(list_page_urls)
 list_page_urls_df.to_json(
@@ -85,23 +88,35 @@ list_page_urls_df.to_json(
 
 #######
 
-'''
-download today's list page
-'''
 yan_web_page_batch_download.args.input_json = 'list_page_url.json'
 yan_web_page_batch_download.args.local_path = today_folder_page_list_html
 yan_web_page_batch_download.args.sleep_second_per_page = None
+yan_web_page_batch_download.args.redicrete = 'true'
 yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
 yan_web_page_batch_download.args.overwrite = 'true'
 yan_web_page_batch_download.main()
 
+#######
 
-'''
-parsing list page to get the page url
-'''
+re_page_url = re.compile(r'\"url\"\:\"(?P<page_url>https\:\/\/www\.bayut\.com\/property\/details-\d+\.html)\"\,', flags=re.DOTALL)
+
+page_url_prefix = ''
+
+def parsing_from_list_to_url(
+	page_html,
+	page_url,
+	):
+	output = []
+	for m in re.finditer(
+		re_page_url,
+		page_html):
+		page_url1 = m.group('page_url')
+		page_url1 = '%s%s'%(page_url_prefix, page_url1)
+		output.append({'page_url':page_url1})
+	return output
 
 parsing_from_list_to_url = udf(
-	bayut_parsing.parsing_from_list_to_url,
+	parsing_from_list_to_url,
 	ArrayType(MapType(StringType(), StringType())))
 
 sqlContext.read.json(today_folder_page_list_html)\
@@ -123,17 +138,15 @@ sqlContext.sql(u"""
 today_page_url = sqlContext.read.json('today_page_url')
 today_page_url.show(100, False)
 today_page_url.count()
-#216
 
-'''
-download the job pages
-'''
+
+#######
 yan_web_page_batch_download.args.input_json = 'today_page_url'
 yan_web_page_batch_download.args.local_path = today_folder_page_html
 yan_web_page_batch_download.args.sleep_second_per_page = None
-yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
+yan_web_page_batch_download.args.redicrete = 'true'
+yan_web_page_batch_download.args.page_regex = 'html'
 yan_web_page_batch_download.args.overwrite = None
 yan_web_page_batch_download.main()
-
 
 #########bayut_download.py#########
