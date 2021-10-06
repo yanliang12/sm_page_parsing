@@ -12,7 +12,7 @@ bash dubizzle_download.sh &
 ####dubizzle_download.sh####
 while true; do
    python3 dubizzle_download.py
-   sleep $[10 * 60]
+   sleep $[1 * 60]
 done
 ####dubizzle_download.sh####
 
@@ -171,5 +171,4 @@ yan_web_page_batch_download.args.sleep_second_per_page = '10'
 yan_web_page_batch_download.args.page_regex = '(doctype|DOCTYPE)'
 yan_web_page_batch_download.args.overwrite = None
 yan_web_page_batch_download.main()
-
 ###########dubizzle_download.py#############
