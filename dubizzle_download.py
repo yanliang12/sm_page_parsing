@@ -108,7 +108,7 @@ parsing_from_list_to_url(
 	)
 '''
 
-re_page_url = re.compile(r'\<a href\=\"(?P<page_url>[^\"]*?)\" class\=\"lpv\-link\-item', flags=re.DOTALL)
+re_page_url = re.compile(r'\<a href\=\"(?P<page_url>[^\"]*?)\&pos\=\d+\" class\=\"lpv\-link\-item', flags=re.DOTALL)
 page_url_prefix = ''
 
 def parsing_from_list_to_url(
@@ -168,6 +168,7 @@ yan_web_page_batch_download.args.input_json = 'today_page_url'
 yan_web_page_batch_download.args.local_path = today_folder_property_page
 yan_web_page_batch_download.args.curl_file = '/dcd_data/dubizzle_page.sh'
 yan_web_page_batch_download.args.sleep_second_per_page = '10'
+yan_web_page_batch_download.args.redicrete = None
 yan_web_page_batch_download.args.page_regex = '(doctype|DOCTYPE)'
 yan_web_page_batch_download.args.overwrite = None
 yan_web_page_batch_download.main()
