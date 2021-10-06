@@ -151,13 +151,22 @@ sqlContext.sql(u"""
 	FROM today_page_url
 	""").show()
 
+'''
++--------+
+|count(1)|
++--------+
+|     999|
++--------+
+'''
+
+
 #########
 
 yan_web_page_batch_download.args.input_json = 'today_page_url'
 yan_web_page_batch_download.args.local_path = today_folder_property_page
 yan_web_page_batch_download.args.curl_file = '/dcd_data/dubizzle_page.sh'
 yan_web_page_batch_download.args.sleep_second_per_page = '10'
-yan_web_page_batch_download.args.page_regex = 'html'
+yan_web_page_batch_download.args.page_regex = '(doctype|DOCTYPE)'
 yan_web_page_batch_download.args.overwrite = None
 yan_web_page_batch_download.main()
 
