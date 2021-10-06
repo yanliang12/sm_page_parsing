@@ -4,6 +4,18 @@ import datetime
 
 ###########
 
+re_page_category = re.compile(r'dubizzle\.com\/(?P<page_category>[^\\\/]*?)\/', flags=re.DOTALL)
+
+def url_category_parsing(
+	page_url,
+	):
+	try:
+		return re.search(re_page_category, page_url).group('page_category')
+	except:
+		return None
+
+###########
+
 re_page_url = re.compile(
 	r'\"(?P<page_url>https\:\/\/abudhabi\.dubizzle\.com\/property\-for\-rent\/[^\\\/]*?\/[^\\\/]*?\/\d+\/\d+\/\d+\/[^\\\/]*?\/)\"',
 	flags=re.DOTALL)
@@ -44,17 +56,19 @@ for e in parsing_from_list_to_url(
 print(page_url)
 '''
 
-
-
 ##########
 
 re_property_attributes = [
+	re.compile(r'value"\>Sale\<.*?price\\\"\:\{\\\"amount\\\"\:(?P<property__property_sale_price_amount__number>[\d\.]*?)\,', flags=re.DOTALL),
+	re.compile(r'value"\>Sale\<.*?price\\\"\:\{[^\{\}]*?currency\\\"\:\\\"(?P<property__property_sale_price_currency__currency>[A-Z]*?)\\\",', flags=re.DOTALL),
+	###
+	re.compile(r'value"\>Rent.*?\"Price\_\_PaymentFrequency[^\"]*?\"\>(?P<property__property_rental_payment_frequency__payment_frequency>[^\<\>]*?)\<\/span\>', flags=re.DOTALL),
+	re.compile(r'value"\>Rent.*?price\\\"\:\{\\\"amount\\\"\:(?P<property__property_rental_price_amount__number>[\d\.]*?)\,', flags=re.DOTALL),
+	re.compile(r'value"\>Rent.*?price\\\"\:\{[^\{\}]*?currency\\\"\:\\\"(?P<property__property_rental_price_currency__currency>[A-Z]*?)\\\",', flags=re.DOTALL),
+	###
+	re.compile(r'Posted On\-value\" [^\<\>]*?\>\<span [^\<\>]*?\>(?P<property__property_post_date__post_date>[^\<\>]*?)\<\/span\>', flags=re.DOTALL),
 	re.compile(r'\<span data\-ui\-id\=\"location\"\>(?P<property__property_location__location>[^\<\>]*?)\<\/span\>', flags=re.DOTALL),
 	re.compile(r'\\\"long\\\"\:(?P<geo_point__geo_point_longitude__longitude>[\d\.]*?)\,\\\"lat\\\"\:(?P<geo_point__geo_point_latitude__latitude>[\d\.]*?)\}', flags=re.DOTALL),
-	re.compile(r'\"Price\_\_PaymentFrequency[^\"]*?\"\>(?P<property__property_rental_payment_frequency__payment_frequency>[^\<\>]*?)\<\/span\>', flags=re.DOTALL),
-	re.compile(r'price\\\"\:\{\\\"amount\\\"\:(?P<property__property_rental_price_amount__number>[\d\.]*?)\,', flags=re.DOTALL),
-	re.compile(r'price\\\"\:\{[^\{\}]*?currency\\\"\:\\\"(?P<property__property_rental_price_currency__currency>[A-Z]*?)\\\",', flags=re.DOTALL),
-	re.compile(r'Posted On\-value\" [^\<\>]*?\>\<span [^\<\>]*?\>(?P<property__property_rental_post_date__date>[^\<\>]*?)\<\/span\>', flags=re.DOTALL),
 	re.compile(r'\<svg .*?SizeFilled\_svg\_\_a.*?\>(?P<property__property_size__size>[^\<\>]*?)\<\/span\>', flags=re.DOTALL),
 	re.compile(r'\>(?P<property__property_bedroom_number__bedroom_number>[^\<\>]*?)\<\/span\>\<span data\-testid\=\"listing\-key\-fact\-bathrooms\"', flags=re.DOTALL),
 	re.compile(r'\>(?P<property__property_bath_number__bath_number>[^\<\>]*?)\<\/span\>\<span data\-testid\=\"listing\-key\-fact\-size', flags=re.DOTALL),
@@ -80,6 +94,7 @@ re_amenity_attributes = [
 
 re_page_url_attributes = [
 	re.compile(r'\/(?P<property__property_location_emirate__emirate>[^\/\.]*?)\.dubizzle', flags=re.DOTALL),
+	re.compile(r'dubizzle\.com\/property\-for\-(?P<property__property_purpose__property_purpose>[^\\\/\-]*?)\/', flags=re.DOTALL),
 	re.compile(r'dubizzle\.com\/[^\\\/]*?\/(?P<property__property_category__property_category>[^\/\\]*?)\/', flags=re.DOTALL),
 	re.compile(r'\/(?P<property__property_type__property_type>[^\/\\]*?)\/\d+\/\d+\/', flags=re.DOTALL),
 	re.compile(r'\/(?P<post_date__date_year__year>\d+)\/(?P<post_date__date_month__month>\d+)\/(?P<post_date__date_day__day>\d+)\/', flags=re.DOTALL),
@@ -148,21 +163,20 @@ def page_parsing(
 '''
 import pandas
 
+page_url = 'https://abudhabi.dubizzle.com/property-for-rent/residential/apartmentflat/2021/3/14/species-2-bedroom-with-maid-sea-view-very--3-921/'
+
+page_html = yan_web_page_download.download_page_from_url(
+	page_url = page_url,
+	curl_file = '/dcd_data/dubizzle/dubizzle_page_curl.sh')
+
 page = pandas.read_json(
-	'/dcd_data/dubizzle/property_page/download_date=20210814/d38aec98055697b307ad64a85110f387.json',
+	'/dcd_data/dubizzle/page_html/source=date202110/a845694ac0f69d4531ade7f1ea074e0d.json',
 	orient = 'records',
 	lines = True,
 	)
 
 page_html = page['page_html'][0]
 page_url = page['page_url'][0]
-
-
-page_url = 'https://abudhabi.dubizzle.com/property-for-rent/residential/apartmentflat/2021/3/14/species-2-bedroom-with-maid-sea-view-very--3-921/'
-
-page_html = yan_web_page_download.download_page_from_url(
-	page_url = page_url,
-	curl_file = '/dcd_data/dubizzle/dubizzle_page_curl.sh')
 
 for e in page_parsing(
 	page_html,
@@ -173,6 +187,7 @@ for e in page_parsing(
 print(page_url)
 
 '''
+
 
 def property_size_amount_extraction(
 	size_str,
@@ -204,9 +219,5 @@ property_size_amount_extraction(
 	size_str,
 	)
 '''
-
-
-
-
 
 ##############dubizzle_parsing.py##############

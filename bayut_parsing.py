@@ -16,7 +16,7 @@ re_page = [
 	re.compile(r'Completion status"\>(?P<property__property_completion_status__property_completion_status>[^\<\>]*?)\<', flags=re.DOTALL),
 	re.compile(r'Purpose"\>(?P<property__property_purpose__property_purpose>[^\<\>]*?)\<', flags=re.DOTALL),
 	re.compile(r'Furnishing"\>(?P<property__property_furnished__furnished>[^\<\>]*?)\<', flags=re.DOTALL),
-	re.compile(r'Absolute creation date"\>(?P<property__property_post_date__date>[^\<\>]*?)\<', flags=re.DOTALL),
+	re.compile(r'Absolute creation date"\>(?P<property__property_post_date__post_date>[^\<\>]*?)\<', flags=re.DOTALL),
 	re.compile(r'GeoCoordinates","latitude"\:(?P<geo_point__geo_point_latitude__latitude>[\d\.]*?),"longitude"\:(?P<geo_point__geo_point_longitude__longitude>[\d\.]*?)\}', flags=re.DOTALL),
 	re.compile(r'name"\:"(?P<property__property_district__district>[^\"]*?)","position"\:3,', flags=re.DOTALL),
 	re.compile(r'name"\:"(?P<property__property_community__community>[^\"]*?)","position"\:4,', flags=re.DOTALL),
@@ -26,7 +26,9 @@ re_page = [
 	re.compile(r'primaryPhoneNumber"\:"(?P<property__property_agent_phone__phone>[^\"\\]*?)"', flags=re.DOTALL),
 	re.compile(r'mobilePhoneNumber\"\:\"(?P<property__property_agent_mobile_phone__mobile_phone>[^\"\\]*?)\"', flags=re.DOTALL),
 	re.compile(r'agency"\:\{"external_id"\:"\d+","name"\:"(?P<property__property_broker_name__broker_name>[^\"]*?)",', flags=re.DOTALL),
+	re.compile(r'\<\/use\>\<\/svg\>\<\/div\>\<div .*?\>\<span .*?\>(?P<property__property_amenity__property_amenity>[^\<\>]*?)\<', flags=re.DOTALL),
 	]
+
 
 def page_parsing(
 	page_html,

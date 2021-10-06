@@ -46,9 +46,18 @@ def parsing_from_list_to_url(
 
 re_page_url_attributes = [
 	re.compile(r'\/(?P<property__property_id__property_id>[^\/\.]*?)\.html', flags=re.DOTALL),
+	re.compile(r'propertyfinder\.ae\/en\/(?P<property__property_purpose__property_purpose>[^\\\/]*?)\/', flags=re.DOTALL),
 ]
 
+
 re_property_attributes = [
+	re.compile(r'active" href\="\/en\/buy\/.*?price\"\:(?P<property__property_sale_price_amount__number>[\d\.]+)\,', flags=re.DOTALL),
+	re.compile(r'active" href\="\/en\/buy\/.*?price_period_label"\:"(?P<property__property_sale_price_currency__currency>[A-Z]{3})"', flags=re.DOTALL),
+	###
+	re.compile(r'active" href\="\/en\/rent\/.*?property_price \= \'(?P<property__property_rental_price_amount__number>[\d\.]*?)\'\;', flags=re.DOTALL),
+	re.compile(r'active" href\="\/en\/rent\/.*?property_rental_period \= \'(?P<property__property_rental_payment_frequency__payment_frequency>[^\']*?)\'\;', flags=re.DOTALL),
+	re.compile(r'active" href\="\/en\/rent\/.*?priceCurrency\"\:\"(?P<property__property_rental_price_currency__currency>[A-Z]*?)\"\,', flags=re.DOTALL),
+	###
 	re.compile(r'\"Subco\.\"\:\[\"(?P<property__property_community__community>[^\"]*?)\"\]', flags=re.DOTALL),
 	re.compile(r'\"Community\"\:\[\"(?P<property__property_district__district>[^\"]*?)\"\]', flags=re.DOTALL),
 	re.compile(r'\"City\"\:\[\"(?P<property__property_city__city>[^\"]*?)\"\]', flags=re.DOTALL),
@@ -60,9 +69,6 @@ re_property_attributes = [
 	re.compile(r'property_name \= \"(?P<property__property_name__property_name>[^\"]*?)\"\;', flags=re.DOTALL),
 	re.compile(r'property_sub_category = \"(?P<property__property_category__property_category>[^\"]*?)\"\;', flags=re.DOTALL),
 	re.compile(r'property_type = \"(?P<property__property_type__property_type>[^\"]*?)\"\;', flags=re.DOTALL),
-	re.compile(r'property_price \= \'(?P<property__property_rental_price_amount__number>[\d\.]*?)\'\;', flags=re.DOTALL),
-	re.compile(r'property_rental_period \= \'(?P<property__property_rental_payment_frequency__payment_frequency>[^\']*?)\'\;', flags=re.DOTALL),
-	re.compile(r'priceCurrency\"\:\"(?P<property__property_rental_price_currency__currency>[A-Z]*?)\"\,', flags=re.DOTALL),
 	re.compile(r'property_bedrooms \= \'(?P<property__property_bedroom_number__bedroom_number>\d*?)\'\;', flags=re.DOTALL),
 	re.compile(r'property_bathrooms \= \'(?P<property__property_bath_number__bath_number>\d*?)\'\;', flags=re.DOTALL),
 	re.compile(r'property_listed_days \= \'(?P<post_date__date_day__day>\d+)\/(?P<post_date__date_month__month>\d+)\/(?P<post_date__date_year__year>\d+)\'\;', flags=re.DOTALL),
@@ -82,7 +88,9 @@ re_property_attributes = [
 	re.compile(r'\"image_property\"\:\"(?P<property__property_photo_url__photo_url>[^\"]*?)\"\,', flags=re.DOTALL),
 	re.compile(r'broker\-image\" src\=\"(?P<property__property_broker_logo_url__photo_url>[^\"]*?)\"', flags=re.DOTALL),
 	re.compile(r'property_size_sqft \= \'(?P<property__property_size__size>[^\']*?)\'\;', flags=re.DOTALL),
+	re.compile(r'Completion\:\s*\<\/div\>\<div class\="text text\-\-bold property\-facts__content"\>\s*(?P<property__property_completion_status__property_completion_status>[^\<\>]*?)\s*\<', flags=re.DOTALL),
 ]
+
 
 def page_parsing(
 	page_html,
@@ -141,7 +149,7 @@ def page_parsing(
 import pandas
 
 page = pandas.read_json(
-	'/dcd_data/propertyfinder/page_html/source=date20210831/4ba1ddb04bef202a286eab6b38d5a650.json',
+	'/dcd_data/propertyfinder/page_html/source=date202110/39e41b85e79c84362985c733970becff.json',
 	orient = 'records',
 	lines = True,
 	)
@@ -149,13 +157,15 @@ page = pandas.read_json(
 page_html = page['page_html'][0]
 page_url = page['page_url'][0]
 
-output = page_parsing(
+
+for e in page_parsing(
 	page_html,
 	page_url,
-	)
+	):
+	if 'property__property_purpose__property_purpose' in e:
+		print(e)
 
-for e in output:
-	print(e)
+
+print(page_url)
 '''
-
 ###########propertyfinder_parsing.py#############
