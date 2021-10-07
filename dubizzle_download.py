@@ -45,7 +45,7 @@ sqlContext = SparkSession.builder.getOrCreate()
 
 #######
 
-page_list_urls = [{'page_url':'https://abudhabi.dubizzle.com/search/?page=1&keywords=&is_basic_search_widget=1&is_search=1'}]
+page_list_urls = [{'page_url':'https://abudhabi.dubizzle.com/search/'}]
 
 '''
 for i in range(1,2):
