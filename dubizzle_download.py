@@ -65,7 +65,7 @@ page_list_urls.to_json(
 #######
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
-today = today.strftime("date%Y%m")
+today = today.strftime("date%Y%m%d")
 
 today_folder_property_page = '/dcd_data/dubizzle/page_html/source=%s'%(today)
 today_folder_property_list_page = '/dcd_data/dubizzle/page_list_html/source=%s'%(today)
@@ -107,7 +107,6 @@ parsing_from_list_to_url(
 	page_url,
 	)
 '''
-
 
 re_page_url = re.compile(r'\<a href\=\"(?P<page_url>[^\"]*?)\?back\=[^\=\&]*?\&pos\=\d+\" class\=\"lpv\-link\-item', flags=re.DOTALL)
 page_url_prefix = ''
