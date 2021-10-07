@@ -5,9 +5,9 @@ docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
 yanliang12/yan_sm_download:1.0.1
 
-python3 property_processing.py &
+python3 property_processing.py
 
-python3 property_rent_dashboard.py &
+python3 property_dashboard.py &
 
 '''
 
@@ -42,8 +42,6 @@ sqlContext = SparkSession.builder.getOrCreate()
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
 today = today.strftime("date%Y%m%d")
-
-today = 'date20211007'
 
 #################################################
 
