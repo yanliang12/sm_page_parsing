@@ -11,7 +11,7 @@ bash propertyfinder_download.sh &
 ####propertyfinder_download.sh####
 while true; do
    python3 propertyfinder_download.py &
-   sleep $[60 * 120]
+   sleep $[1 * 60]
 done
 ####propertyfinder_download.sh####
 
@@ -45,7 +45,7 @@ sqlContext = SparkSession.builder.getOrCreate()
 #######
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
-today = today.strftime("date%Y%m")
+today = today.strftime("date%Y%m%d")
 
 today_folder_page_html = '/dcd_data/propertyfinder/page_html/source=%s'%(today)
 today_folder_page_list_html = '/dcd_data/propertyfinder/page_list_html/source=%s'%(today)
@@ -65,7 +65,7 @@ except Exception as e:
 list_page_urls = []
 
 for c in range(1,5):
-	for i in range(1,11):
+	for i in range(1,2):
 		list_page_url = 'https://www.propertyfinder.ae/en/search?c={}&l=6&ob=nd&page={}'.format(c, i)
 		list_page_urls.append({'page_url':list_page_url,})
 
@@ -85,6 +85,7 @@ yan_web_page_batch_download.args.input_json = 'list_page_url.json'
 yan_web_page_batch_download.args.local_path = today_folder_page_list_html
 yan_web_page_batch_download.args.sleep_second_per_page = None
 yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
+yan_web_page_batch_download.args.sleep_second_per_page = '10'
 yan_web_page_batch_download.args.overwrite = 'true'
 yan_web_page_batch_download.main()
 
@@ -135,7 +136,7 @@ today_page_url.count()
 ###########
 yan_web_page_batch_download.args.input_json = 'today_page_url'
 yan_web_page_batch_download.args.local_path = today_folder_page_html
-yan_web_page_batch_download.args.sleep_second_per_page = None
+yan_web_page_batch_download.args.sleep_second_per_page = "10"
 yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
 yan_web_page_batch_download.args.overwrite = None
 yan_web_page_batch_download.main()
