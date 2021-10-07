@@ -12,7 +12,7 @@ bash opensooq_download.sh &
 ####opensooq_download.sh####
 while true; do
    python3 opensooq_download.py &
-   sleep $[60 * 60]
+   sleep $[1 * 60]
 done
 ####opensooq_download.sh####
 
@@ -107,7 +107,6 @@ def parsing_from_list_to_url(
 		page_url1 = '%s%s'%(page_url_prefix, page_url1)
 		output.append({'page_url':page_url1})
 	return output
-
 
 '''
 page = pandas.read_json(
