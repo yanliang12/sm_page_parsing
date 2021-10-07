@@ -4,7 +4,7 @@ import re
 
 re_page = [
 	re.compile(r'name\"\:\"(?P<property__post_category__post_category>[^\"]*?) in (?P<property__property_city__city>[^\"]*?)\"\,\"position\"\:2\,', flags=re.DOTALL),
-	re.compile(r'for Sale.*?Price\"\>(?P<property__sale_price_amount__number>[\d\,\.]+)\<\/span\>', flags=re.DOTALL),
+	re.compile(r'for Sale.*?Price\"\>(?P<property__property_sale_price_amount__number>[\d\,\.]+)\<\/span\>', flags=re.DOTALL),
 	re.compile(r'for Sale.*?Currency\"\>(?P<property__sale_price_currency__currency>[A-Z]{3})\<\/span\>', flags=re.DOTALL),
 	re.compile(r'for Rent.*?Price\"\>(?P<property__property_rental_price_amount__number>[\d\,\.]+)\<\/span\>', flags=re.DOTALL),
 	re.compile(r'for Rent.*?Currency\"\>(?P<property__property_rental_price_currency__currency>[A-Z]{3})\<\/span\>', flags=re.DOTALL),
