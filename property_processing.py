@@ -52,6 +52,37 @@ today = today.strftime("date%Y%m%d")
 parsing the pages
 '''
 
+####dubizzle#####
+
+today_folder_page_html = '/dcd_data/dubizzle/page_html/source=%s'%(today)
+parsed_json_path = '/dcd_data/temp/property_parsed/website=abudhabi.dubizzle.com'
+
+print('load the pages of {}'.format(today_folder_page_html))
+
+dubizzle_page_html = sqlContext.read.json(today_folder_page_html)
+dubizzle_page_html.write.mode('Overwrite').parquet('dubizzle_page_html/source=%s'%(today))
+
+print('processing the pages of {}'.format(today_folder_page_html))
+
+sqlContext.read.parquet('dubizzle_page_html').registerTempTable('dubizzle_page_html')
+
+#####
+
+sqlContext.udf.register(
+	"page_parsing", 
+	dubizzle_parsing.property_page_parsing,
+	ArrayType(MapType(StringType(), StringType())))
+
+sqlContext.sql(u"""
+	select *,
+	page_parsing(page_html, page_url) as parsed
+	from dubizzle_page_html
+	""").drop('page_html').write.mode('Overwrite').json(parsed_json_path)
+
+print('processing of {} is completed'.format(today_folder_page_html))
+
+
+
 #####propertyfinder####
 
 today_folder_page_html = '/dcd_data/propertyfinder/page_html/source=%s'%(today)
@@ -103,37 +134,6 @@ sqlContext.sql(u"""
 	""").drop('page_html').write.mode('Overwrite').json(parsed_json_path)
 
 print('processing of {} is completed'.format(today_folder_page_html))
-
-####dubizzle#####
-
-today_folder_page_html = '/dcd_data/dubizzle/page_html/source=%s'%(today)
-parsed_json_path = '/dcd_data/temp/property_parsed/website=abudhabi.dubizzle.com'
-
-print('load the pages of {}'.format(today_folder_page_html))
-
-dubizzle_page_html = sqlContext.read.json(today_folder_page_html)
-dubizzle_page_html.write.mode('Overwrite').parquet('dubizzle_page_html/source=%s'%(today))
-
-print('processing the pages of {}'.format(today_folder_page_html))
-
-sqlContext.read.parquet('dubizzle_page_html').registerTempTable('dubizzle_page_html')
-
-#####
-
-sqlContext.udf.register(
-	"page_parsing", 
-	property_page_parsing,
-	ArrayType(MapType(StringType(), StringType())))
-
-sqlContext.sql(u"""
-	select *,
-	page_parsing(page_html, page_url) as parsed
-	from dubizzle_page_html
-	""").drop('page_html').write.mode('Overwrite').json(parsed_json_path)
-
-print('processing of {} is completed'.format(today_folder_page_html))
-
-
 
 
 #################################################
