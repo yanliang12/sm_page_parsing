@@ -194,17 +194,4 @@ print(page_url)
 
 '''
 
-
-''''
-size_str = '1,000 SqFt'
-
-property_size_unit_extraction(
-	size_str,
-	)
-
-property_size_amount_extraction(
-	size_str,
-	)
-'''
-
 ##############dubizzle_parsing.py##############
