@@ -47,11 +47,11 @@ sqlContext = SparkSession.builder.getOrCreate()
 
 
 https://gulfnews.com/search?query=abu+dhabi
+today = 'dcd'
 '''
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
 today = today.strftime("date%Y%m")
-today = 'dcd'
 
 today_folder_page_html = '/dcd_data/khaleejtimes/page_html/source=%s'%(today)
 today_folder_page_list_html = '/dcd_data/khaleejtimes/page_list_html/source=%s'%(today)
@@ -79,7 +79,7 @@ first_page_url = 'https://www.khaleejtimes.com/uae/abu-dhabi&pagenumber=2'
 
 list_page_urls = []
 
-for i in range(1,10):
+for i in range(1,5):
 	list_page_url = 'https://www.khaleejtimes.com/uae/abu-dhabi&pagenumber={}'.format(i)
 	list_page_urls.append({'page_url':list_page_url,})
 
