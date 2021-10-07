@@ -12,10 +12,9 @@ bash bayut_download.sh &
 ####bayut_download.sh####
 while true; do
    python3 bayut_download.py &
-   sleep $[60 * 60]
+   sleep $[1 * 60]
 done
 ####bayut_download.sh####
-
 
 '''
 
@@ -46,7 +45,7 @@ sqlContext = SparkSession.builder.getOrCreate()
 #######
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
-today = today.strftime("data%Y%m")
+today = today.strftime("data%Y%m%d")
 
 today_folder_page_html = '/dcd_data/bayut/page_html/source=%s'%(today)
 today_folder_page_list_html = '/dcd_data/bayut/page_list_html/source=%s'%(today)
@@ -67,15 +66,19 @@ list_page_urls = []
 
 list_page_urls.append({'page_url':'https://www.bayut.com/to-rent/property/abu-dhabi/?sort=date_desc'})
 
+'''
 for i in range(2,11):
 	list_page_url = 'https://www.bayut.com/to-rent/property/abu-dhabi/page-{}/?sort=date_desc'.format(i)
 	list_page_urls.append({'page_url':list_page_url,})
+'''
 
 list_page_urls.append({'page_url':'https://www.bayut.com/for-sale/property/abu-dhabi/?sort=date_desc'})
 
+'''
 for i in range(2,11):
 	list_page_url = 'https://www.bayut.com/for-sale/property/abu-dhabi/page-{}/?sort=date_desc'.format(i)
 	list_page_urls.append({'page_url':list_page_url,})
+'''
 
 #######
 
@@ -92,6 +95,7 @@ yan_web_page_batch_download.args.input_json = 'list_page_url.json'
 yan_web_page_batch_download.args.local_path = today_folder_page_list_html
 yan_web_page_batch_download.args.sleep_second_per_page = None
 yan_web_page_batch_download.args.redicrete = 'true'
+yan_web_page_batch_download.args.sleep_second_per_page = '10'
 yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
 yan_web_page_batch_download.args.overwrite = 'true'
 yan_web_page_batch_download.main()
@@ -145,6 +149,7 @@ yan_web_page_batch_download.args.input_json = 'today_page_url'
 yan_web_page_batch_download.args.local_path = today_folder_page_html
 yan_web_page_batch_download.args.sleep_second_per_page = None
 yan_web_page_batch_download.args.redicrete = 'true'
+yan_web_page_batch_download.args.sleep_second_per_page = '10'
 yan_web_page_batch_download.args.page_regex = 'html'
 yan_web_page_batch_download.args.overwrite = None
 yan_web_page_batch_download.main()
