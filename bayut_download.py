@@ -45,7 +45,7 @@ sqlContext = SparkSession.builder.getOrCreate()
 #######
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
-today = today.strftime("data%Y%m%d")
+today = today.strftime("date%Y%m%d")
 
 today_folder_page_html = '/dcd_data/bayut/page_html/source=%s'%(today)
 today_folder_page_list_html = '/dcd_data/bayut/page_list_html/source=%s'%(today)
