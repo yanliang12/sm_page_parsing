@@ -38,6 +38,15 @@ def page_parsing(
 	for r in re_page:
 		for m in re.finditer(r, page_html):
 			output.append(m.groupdict())
+	for e in output:
+		if 'geo_point__geo_point_longitude__longitude' in e and 'geo_point__geo_point_latitude__latitude':
+			e['geo_point'] = '%s,%s'%(
+				e['geo_point__geo_point_latitude__latitude'],
+				e['geo_point__geo_point_longitude__longitude'],			
+				)
+			output.append({'property__property_geo_location__geo_point':
+				e['geo_point']
+				})
 	return output
 
 '''
