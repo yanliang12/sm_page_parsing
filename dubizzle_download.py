@@ -12,7 +12,7 @@ bash dubizzle_download.sh &
 ####dubizzle_download.sh####
 while true; do
    python3 dubizzle_download.py
-   sleep $[1 * 60]
+   sleep $[5 * 60]
 done
 ####dubizzle_download.sh####
 
@@ -45,7 +45,7 @@ sqlContext = SparkSession.builder.getOrCreate()
 
 #######
 
-page_list_urls = [{'page_url':'https://abudhabi.dubizzle.com/search/'}]
+page_list_urls = [{'page_url':'https://abudhabi.dubizzle.com/search/?page=1&keywords=&is_basic_search_widget=1&is_search=1'}]
 
 '''
 for i in range(1,2):
@@ -85,6 +85,7 @@ except Exception as e:
 yan_web_page_batch_download.args.input_json = 'page_list_urls.json'
 yan_web_page_batch_download.args.local_path = today_folder_property_list_page
 yan_web_page_batch_download.args.curl_file = '/dcd_data/dubizzle_list_page.sh'
+yan_web_page_batch_download.args.sleep_second_per_page = '10'
 yan_web_page_batch_download.args.overwrite = 'true'
 yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
 yan_web_page_batch_download.args.sleep_second_per_page = None
