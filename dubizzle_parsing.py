@@ -72,7 +72,7 @@ re_property_attributes = [
 	re.compile(r'\<svg .*?SizeFilled\_svg\_\_a.*?\>(?P<property__property_size__size>[^\<\>]*?)\<\/span\>', flags=re.DOTALL),
 	re.compile(r'\>(?P<property__property_bedroom_number__bedroom_number>[^\<\>]*?)\<\/span\>\<span data\-testid\=\"listing\-key\-fact\-bathrooms\"', flags=re.DOTALL),
 	re.compile(r'\>(?P<property__property_bath_number__bath_number>[^\<\>]*?)\<\/span\>\<span data\-testid\=\"listing\-key\-fact\-size', flags=re.DOTALL),
-	re.compile(r'phoneNumber\\\"\:\\\"(?P<property__property_broker_phone__phone>[^\"\\]*?)\\\"', flags=re.DOTALL),
+	re.compile(r'phoneNumber\\\"\:\\\"(?P<property__property_agent_phone__phone>[^\"\\]*?)\\\"', flags=re.DOTALL),
 	re.compile(r'\\\"dedLicenceNo\\\"\:\\\"(?P<property__property_ded_licence_number__licence_number>[^\"\\]*?)\\\"\,', flags=re.DOTALL),
 	re.compile(r'broker_name\\\"\:\\\"(?P<property__property_broker_name__broker_name>[^\"]*?)\\\"', flags=re.DOTALL),
 	re.compile(r'broker_logo\\\"\:\\\"(?P<property__property_broker_logo_url__photo_url>[^\"]*?)\\\"', flags=re.DOTALL),
@@ -101,10 +101,16 @@ re_page_url_attributes = [
 	re.compile(r'\/\d+\/\d+\/\d+\/(?P<property__property_id__property_id>[^\/\.]*?)\/', flags=re.DOTALL),
 ]
 
-def page_parsing(
+def property_page_parsing(
 	page_html,
 	page_url,
 	):
+	try:
+		page_category = re.search(re_page_category, page_url).group('page_category')
+		if page_category not in ['property-for-rent', 'property-for-sale']:
+			return None
+	except:
+		return None
 	###
 	output = []
 	###
@@ -188,25 +194,6 @@ print(page_url)
 
 '''
 
-
-def property_size_amount_extraction(
-	size_str,
-	):
-	try:
-		size = re.search(r'[\d\,\.]+', size_str).group()
-		size = re.sub(r'[\,]+', '', size)
-		size = float(size)
-		return size
-	except:
-		return None
-
-def property_size_unit_extraction(
-	size_str,
-	):
-	try:
-		return re.search(r'[A-z]+', size_str).group()
-	except:
-		return None
 
 ''''
 size_str = '1,000 SqFt'
