@@ -43,6 +43,8 @@ sqlContext = SparkSession.builder.getOrCreate()
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
 today = today.strftime("date%Y%m%d")
 
+today = 'date20211007'
+
 #################################################
 
 
