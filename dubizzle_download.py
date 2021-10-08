@@ -12,7 +12,7 @@ bash dubizzle_download.sh &
 ####dubizzle_download.sh####
 while true; do
    python3 dubizzle_download.py
-   sleep $[5 * 60]
+   sleep $[10 * 60]
 done
 ####dubizzle_download.sh####
 
@@ -45,15 +45,15 @@ sqlContext = SparkSession.builder.getOrCreate()
 
 #######
 
-page_list_urls = [{'page_url':'https://abudhabi.dubizzle.com/search/'}]
+first_page = {'page_url':'https://abudhabi.dubizzle.com/search/'}
 
-'''
-for i in range(1,2):
+page_list_urls = []
+
+for i in range(1,5):
 	page_list_url = 'https://abudhabi.dubizzle.com/search/?page={}&keywords=&is_basic_search_widget=1&is_search=1'.format(i)
 	page_list_urls.append({
 		'page_url':page_list_url
 		})
-'''
 
 page_list_urls = pandas.DataFrame(page_list_urls)
 page_list_urls.to_json(
