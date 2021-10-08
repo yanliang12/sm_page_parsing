@@ -83,7 +83,7 @@ today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
 today = today - datetime.timedelta(days=1)
 today = today.strftime("date%Y%m%d")
 
-today = 'date20211002'
+#today = 'date20211002'
 
 #################################################
 
