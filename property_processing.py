@@ -75,7 +75,14 @@ sqlContext.sql(u"""
 	select *,
 	page_parsing(page_html, page_url) as parsed
 	from dubizzle_page_html
-	""").drop('page_html').write.mode('Overwrite').json(parsed_json_path)
+	""").drop('page_html').write.mode('Overwrite').parquet('dubizzle_page_html_parsed')
+
+sqlContext.read.parquet('dubizzle_page_html_parsed').registerTempTable('dubizzle_page_html_parsed')
+
+sqlContext.sql(u"""
+	select * from dubizzle_page_html_parsed where parsed is not null
+	""").write.mode('Overwrite').json(parsed_json_path)
+
 
 print('processing of {} is completed'.format(today_folder_page_html))
 
