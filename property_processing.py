@@ -2,12 +2,12 @@
 '''
 
 docker run -it ^
+-p 0.0.0.0:6794:6794 ^
+-p 0.0.0.0:3974:3974 ^
 -v "E:\dcd_data":/dcd_data/ ^
-yanliang12/yan_sm_download:1.0.1
+yanliang12/yan_sm_download:1.0.1 
 
-python3 property_processing.py
-
-python3 property_dashboard.py &
+python3 property_processing.py &
 
 '''
 
@@ -38,10 +38,52 @@ from pyspark.sql.functions import *
 sc = SparkContext("local")
 sqlContext = SparkSession.builder.getOrCreate()
 
-#####
+####################
+
+'''
+
+mv /jessica/elasticsearch-6.7.1 /jessica/elasticsearch_property
+cp -r /jessica/elasticsearch_property /dcd_data/es/
+
+'''
+
+es_session = jessica_es.start_es(
+	es_path = "/dcd_data/es/elasticsearch_property",
+	es_port_number = "6794")
+
+jessica_es.start_kibana(
+	kibana_path = '/jessica/kibana-6.7.1-linux-x86_64',
+	kibana_port_number = "3974",
+	es_port_number = "6794",
+	)
+
+'''
+http://localhost:3974/app/kibana#/dashboard/84bd18c0-fdc2-11eb-bd1a-8f30bb208bae
+
+DELETE property
+
+PUT property
+{
+  "mappings": {
+  "doc":{
+	    "properties": {
+	      "property__property_geo_location__geo_point": {"type": "geo_point"},
+	      "parsed.property__property_post_date__post_date": {"type": "text"},
+	      "property__property_post_date__post_date": {"type": "date"}
+	    }
+   }
+  }
+}
+
+'''
+
+####################
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
+today = today - datetime.timedelta(days=1)
 today = today.strftime("date%Y%m%d")
+
+today = 'date20211002'
 
 #################################################
 
@@ -85,7 +127,6 @@ sqlContext.sql(u"""
 
 
 print('processing of {} is completed'.format(today_folder_page_html))
-
 
 
 #####propertyfinder####
@@ -152,10 +193,12 @@ print('enriching the parsed pages')
 parsed_json_path = '/dcd_data/temp/property_parsed'
 sqlContext.read.json(parsed_json_path).registerTempTable('page_parsed')
 
-
 '''
 produce the geo_point
 '''
+
+print('extracting geo-point')
+
 sqlContext.sql(u"""
 	SELECT DISTINCT page_url_hash,
 	parsed.property__property_geo_location__geo_point
@@ -171,6 +214,8 @@ sqlContext.sql(u"""
 '''
 find the post_data 
 '''
+
+print('transforming date')
 
 month_mapping = {
 	"january":1,
@@ -271,6 +316,8 @@ sqlContext.udf.register(
 
 ###
 
+print('extracting rental price')
+
 sqlContext.sql(u"""
 	SELECT DISTINCT 
 	page_url_hash,
@@ -284,6 +331,8 @@ sqlContext.sql(u"""
 	AND page_url_hash IS NOT NULL
 	""").write.mode('Overwrite').parquet('property__property_rental_price_amount__number')
 
+print('extracting sale price')
+
 sqlContext.sql(u"""
 	SELECT DISTINCT 
 	page_url_hash,
@@ -296,6 +345,8 @@ sqlContext.sql(u"""
 	WHERE parsed.property__property_sale_price_amount__number IS NOT NULL 
 	AND page_url_hash IS NOT NULL
 	""").write.mode('Overwrite').parquet('property__property_sale_price_amount__number')
+
+print('extracting property size')
 
 sqlContext.sql(u"""
 	SELECT DISTINCT 
@@ -311,6 +362,8 @@ sqlContext.sql(u"""
 	AND page_url_hash IS NOT NULL
 	""").write.mode('Overwrite').parquet('property__property_size__size')
 
+print('extracting bedroom number')
+
 sqlContext.sql(u"""
 	SELECT DISTINCT 
 	page_url_hash,
@@ -324,6 +377,7 @@ sqlContext.sql(u"""
 	AND page_url_hash IS NOT NULL
 	""").write.mode('Overwrite').parquet('property__property_bedroom_number__bedroom_number')
 
+print('extracting bathroom number')
 
 sqlContext.sql(u"""
 	SELECT DISTINCT 
@@ -338,12 +392,14 @@ sqlContext.sql(u"""
 	AND page_url_hash IS NOT NULL
 	""").write.mode('Overwrite').parquet('property__property_bath_number__bath_number')
 
-
 #################################################
 
 '''
 build the index data
 '''
+
+print('attaching the attributes to the main table')
+
 sqlContext.read.parquet('property__property_geo_location__geo_point').registerTempTable('property__property_geo_location__geo_point')
 sqlContext.read.parquet('property__property_post_date__post_date').registerTempTable('property__property_post_date__post_date')
 sqlContext.read.parquet('property__property_rental_price_amount__number').registerTempTable('property__property_rental_price_amount__number')
@@ -370,8 +426,32 @@ sqlContext.sql(u"""
 	LEFT JOIN property__property_size__size AS s ON s.page_url_hash = j.page_url_hash
 	LEFT JOIN property__property_bedroom_number__bedroom_number AS b ON b.page_url_hash = j.page_url_hash
 	LEFT JOIN property__property_bath_number__bath_number AS f ON f.page_url_hash = j.page_url_hash
-	""").write.mode('Overwrite').json('/dcd_data/temp/property_es_data')
+	""").write.mode('Overwrite').json('property_es_data')
 
 print('enrichment is complete and the es data is ready')
+
+#############
+
+print('ingesting data to es')
+
+json_folder = 'property_es_data'
+
+files = [join(json_folder, f) 
+	for f in listdir(json_folder) 
+	if isfile(join(json_folder, f))
+	and bool(re.search(r'.+\.json$', f))]
+
+for f in files:
+	try:
+		print('ingesting %s'%(f))
+		df = jessica_es.ingest_json_to_es_index(
+			json_file = f,
+			es_index = "property",
+			es_session = es_session,
+			document_id_feild = 'page_url_hash',
+			)
+		print(df)
+	except Exception as e:
+		print(e)
 
 ############property_processing.py################
