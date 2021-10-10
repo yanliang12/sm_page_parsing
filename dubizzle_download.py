@@ -12,7 +12,7 @@ bash dubizzle_download.sh &
 ####dubizzle_download.sh####
 while true; do
    python3 dubizzle_download.py
-   sleep $[30 * 60]
+   sleep $[60 * 60]
 done
 ####dubizzle_download.sh####
 
@@ -51,7 +51,7 @@ first_page = {'page_url':'https://abudhabi.dubizzle.com/search/'}
 page_list_urls = []
 
 
-for i in range(1,21):
+for i in range(1,11):
 	page_list_url = 'https://abudhabi.dubizzle.com/search/?page={}&keywords=&is_basic_search_widget=1&is_search=1'.format(i)
 	page_list_urls.append({
 		'page_url':page_list_url
@@ -89,7 +89,7 @@ yan_web_page_batch_download.args.local_path = today_folder_property_list_page
 yan_web_page_batch_download.args.curl_file = '/dcd_data/dubizzle_list_page.sh'
 yan_web_page_batch_download.args.overwrite = 'true'
 yan_web_page_batch_download.args.page_regex = 'DOCTYPE'
-yan_web_page_batch_download.args.sleep_second_per_page = None
+yan_web_page_batch_download.args.sleep_second_per_page = "10"
 yan_web_page_batch_download.main()
 
 ##########
@@ -161,7 +161,7 @@ sqlContext.sql(u"""
 yan_web_page_batch_download.args.input_json = 'today_page_url'
 yan_web_page_batch_download.args.local_path = today_folder_property_page
 yan_web_page_batch_download.args.curl_file = '/dcd_data/dubizzle_page.sh'
-yan_web_page_batch_download.args.sleep_second_per_page = None
+yan_web_page_batch_download.args.sleep_second_per_page = "10"
 yan_web_page_batch_download.args.redicrete = None
 yan_web_page_batch_download.args.page_regex = '(doctype|DOCTYPE)'
 yan_web_page_batch_download.args.overwrite = None
