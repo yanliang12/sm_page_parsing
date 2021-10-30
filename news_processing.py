@@ -91,6 +91,7 @@ parsing the pages
 
 import gulfnews_parsing
 import khaleejtimes_parsing
+import thenationalnews_parsing
 
 ####khaleejtimes#####
 
@@ -163,6 +164,40 @@ sqlContext.sql(u"""
 
 print('processing of {} is completed'.format(today_folder_page_html))
 
+####thenationalnews#####
+
+today_folder_page_html = '/dcd_data/thenationalnews/page_html/source=%s'%(today)
+parsed_json_path = 'news_parsed/website=www.thenationalnews.com'
+
+print('load the pages of {}'.format(today_folder_page_html))
+
+thenationalnews_page_html = sqlContext.read.json(today_folder_page_html)
+thenationalnews_page_html.write.mode('Overwrite').parquet('thenationalnews_page_html/source=%s'%(today))
+
+print('processing the pages of {}'.format(today_folder_page_html))
+
+sqlContext.read.parquet('thenationalnews_page_html').registerTempTable('thenationalnews_page_html')
+
+#####
+
+sqlContext.udf.register(
+	"page_parsing", 
+	page_parsing,
+	ArrayType(MapType(StringType(), StringType())))
+
+sqlContext.sql(u"""
+	select *,
+	page_parsing(page_html, page_url) as parsed
+	from thenationalnews_page_html
+	""").drop('page_html').write.mode('Overwrite').parquet('thenationalnews_page_html_parsed')
+
+sqlContext.read.parquet('thenationalnews_page_html_parsed').registerTempTable('thenationalnews_page_html_parsed')
+
+sqlContext.sql(u"""
+	select * from thenationalnews_page_html_parsed where parsed is not null
+	""").write.mode('Overwrite').json(parsed_json_path)
+
+print('processing of {} is completed'.format(today_folder_page_html))
 
 #################################################
 
@@ -180,9 +215,9 @@ produce the geo_point
 '''
 
 sqlContext.sql(u"""
-	select *
+	select website, count(*)
 	from page_parsed
-	where website = 'gulfnews.com'
+	group by website
 	""").show()
 
 
