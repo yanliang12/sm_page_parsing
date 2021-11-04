@@ -11,11 +11,10 @@ python3 khaleejtimes_download.py &
 
 ####khaleejtimes_download.sh####
 while true; do
-   python3 khaleejtimes_download.py &
+   python3 khaleejtimes_download.py
    sleep $[60 * 60]
 done
 ####khaleejtimes_download.sh####
-
 
 '''
 
@@ -51,7 +50,7 @@ today = 'dcd'
 '''
 
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
-today = today.strftime("date%Y%m")
+today = today.strftime("date%Y")
 
 today_folder_page_html = '/dcd_data/khaleejtimes/page_html/source=%s'%(today)
 today_folder_page_list_html = '/dcd_data/khaleejtimes/page_list_html/source=%s'%(today)
@@ -80,7 +79,7 @@ first_page_url = 'https://www.khaleejtimes.com/uae/abu-dhabi&pagenumber=2'
 list_page_urls = []
 
 for i in range(1,5):
-	list_page_url = 'https://www.khaleejtimes.com/uae/abu-dhabi&pagenumber={}'.format(i)
+	list_page_url = 'https://www.khaleejtimes.com/business/property?pagenr={}'.format(i)
 	list_page_urls.append({'page_url':list_page_url,})
 
 list_page_urls_df = pandas.DataFrame(list_page_urls)
@@ -108,20 +107,27 @@ yan_web_page_batch_download.main()
 '''
 parse the list page to get the page url
 '''
-re_page_url = re.compile(r'href\="(?P<page_url>\/news\/[^\"]*?)"\>', flags=re.DOTALL)
+
+re_page_url = [
+	#re.compile(r'href\="(?P<page_url>\/news\/[^\"]*?)"\>', flags=re.DOTALL),
+	re.compile(r'post\-thumbnail"\>\<a href\="(?P<page_url>https\:\/\/www\.khaleejtimes\.com\/[^\\/]*?\/[^\\/]*?)"\>', flags=re.DOTALL),
+	]
+
 page_url_prefix = 'https://www.khaleejtimes.com'
+page_url_prefix = ''
 
 def parsing_from_list_to_url(
 	page_html,
 	page_url,
 	):
 	output = []
-	for m in re.finditer(
-		re_page_url,
-		page_html):
-		page_url1 = m.group('page_url')
-		page_url1 = '%s%s'%(page_url_prefix, page_url1)
-		output.append({'page_url':page_url1})
+	for r in re_page_url:
+		for m in re.finditer(
+			r,
+			page_html):
+			page_url1 = m.group('page_url')
+			page_url1 = '%s%s'%(page_url_prefix, page_url1)
+			output.append({'page_url':page_url1})
 	return output
 
 parsing_from_list_to_url = udf(
