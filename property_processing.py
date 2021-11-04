@@ -9,9 +9,18 @@ yanliang12/yan_sm_download:1.0.1
 
 python3 property_processing.py &
 
-python3 property_processing.py --source date20211029 &
+python3 property_processing.py --source date20211029 
 
 '''
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--source')
+args = parser.parse_args()
+
+print('procesing source of %s'%(args.source))
+
+today = args.source
 
 
 import os
@@ -42,13 +51,6 @@ sqlContext = SparkSession.builder.getOrCreate()
 
 ####################
 
-import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--source')
-args = parser.parse_args()
-
-print('procesing source of %s'%(args.source))
 
 '''
 
@@ -89,12 +91,11 @@ PUT property
 
 ####################
 
+'''
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
 today = today - datetime.timedelta(days=1)
 today = today.strftime("date%Y%m%d")
-
-if args.source is not None:
-	today = args.source
+'''
 
 #################################################
 
