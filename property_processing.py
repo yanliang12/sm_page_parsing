@@ -2,16 +2,14 @@
 '''
 
 docker run -it ^
--v "E:\dcd_data":/dcd_data/ ^
-yanliang12/yan_sm_download:1.0.1 
-
-docker run -it ^
 -p 0.0.0.0:6794:6794 ^
 -p 0.0.0.0:3974:3974 ^
 -v "E:\dcd_data":/dcd_data/ ^
 yanliang12/yan_sm_download:1.0.1 
 
 python3 property_processing.py &
+
+python3 property_processing.py --source date20211029 &
 
 '''
 
@@ -43,6 +41,14 @@ sc = SparkContext("local")
 sqlContext = SparkSession.builder.getOrCreate()
 
 ####################
+
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--source')
+args = parser.parse_args()
+
+print('procesing source of %s'%(args.source))
 
 '''
 
@@ -86,6 +92,9 @@ PUT property
 today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
 today = today - datetime.timedelta(days=1)
 today = today.strftime("date%Y%m%d")
+
+if args.source is not None:
+	today = args.source
 
 #################################################
 
@@ -182,15 +191,6 @@ sqlContext.sql(u"""
 	""").drop('page_html').write.mode('Overwrite').json(parsed_json_path)
 
 print('processing of {} is completed'.format(today_folder_page_html))
-
-
-
-
-
-
-
-
-
 
 
 #################################################
@@ -413,12 +413,6 @@ sqlContext.read.parquet('property__property_sale_price_amount__number').register
 sqlContext.read.parquet('property__property_size__size').registerTempTable('property__property_size__size')
 sqlContext.read.parquet('property__property_bedroom_number__bedroom_number').registerTempTable('property__property_bedroom_number__bedroom_number')
 sqlContext.read.parquet('property__property_bath_number__bath_number').registerTempTable('property__property_bath_number__bath_number')
-
-
-
-
-
-
 
 
 
