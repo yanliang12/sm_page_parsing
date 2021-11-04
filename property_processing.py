@@ -13,7 +13,22 @@ python3 property_processing.py --source date20211029
 
 '''
 
+import os
+import re
+import pandas
+import pytz
+import datetime
 import argparse
+import jessica_es
+from os import listdir
+from os.path import isfile, join, exists
+
+import dubizzle_parsing
+import propertyfinder_parsing
+import bayut_parsing
+
+####################
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--source')
 args = parser.parse_args()
@@ -22,19 +37,11 @@ print('procesing source of %s'%(args.source))
 
 today = args.source
 
-
-import os
-import re
-import pandas
-import pytz
-import datetime
-import jessica_es
-from os import listdir
-from os.path import isfile, join, exists
-
-import dubizzle_parsing
-import propertyfinder_parsing
-import bayut_parsing
+'''
+today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
+today = today - datetime.timedelta(days=1)
+today = today.strftime("date%Y%m%d")
+'''
 
 #######
 
@@ -48,7 +55,6 @@ sc = SparkContext("local")
 sqlContext = SparkSession.builder.getOrCreate()
 
 ####################
-
 
 '''
 
@@ -85,14 +91,6 @@ PUT property
   }
 }
 
-'''
-
-####################
-
-'''
-today = datetime.datetime.now(pytz.timezone('Asia/Dubai'))
-today = today - datetime.timedelta(days=1)
-today = today.strftime("date%Y%m%d")
 '''
 
 #################################################
