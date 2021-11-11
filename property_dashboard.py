@@ -14,6 +14,7 @@ python3 property_dashboard.py &
 
 import os
 import re
+import time
 import pandas
 import jessica_es
 from os import listdir
@@ -38,7 +39,8 @@ while True:
 		kibana_port_number = "3974",
 		es_port_number = "6794",
 		)
-	sleep(60*60)
+	time.sleep(60*60)
+
 
 '''
 http://localhost:3974/app/kibana#/dashboard/84bd18c0-fdc2-11eb-bd1a-8f30bb208bae
