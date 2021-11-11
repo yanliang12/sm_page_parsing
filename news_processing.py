@@ -91,9 +91,8 @@ today = today.strftime("date%Y")
 parsing the pages
 '''
 
-import thenationalnews_parsing
 
-####khaleejtimes#####
+################khaleejtimes################
 
 today_folder_page_html = '/dcd_data/khaleejtimes/page_html/source=%s'%(today)
 parsed_json_path = 'news_parsed/website=www.khaleejtimes.com'
@@ -109,6 +108,7 @@ sqlContext.read.parquet('khaleejtimes_page_html').registerTempTable('khaleejtime
 
 #####
 
+import khaleejtimes_parsing
 
 sqlContext.udf.register(
 	"page_parsing", 
@@ -130,7 +130,10 @@ sqlContext.sql(u"""
 print('processing of {} is completed'.format(today_folder_page_html))
 
 
-####gulfnews#####
+
+
+
+################gulfnews################
 
 today_folder_page_html = '/dcd_data/gulfnews/page_html/source=%s'%(today)
 parsed_json_path = 'news_parsed/website=gulfnews.com'
@@ -167,7 +170,10 @@ sqlContext.sql(u"""
 
 print('processing of {} is completed'.format(today_folder_page_html))
 
-####thenationalnews#####
+
+
+
+################thenationalnews################
 
 today_folder_page_html = '/dcd_data/thenationalnews/page_html/source=%s'%(today)
 parsed_json_path = 'news_parsed/website=www.thenationalnews.com'
@@ -205,10 +211,6 @@ sqlContext.sql(u"""
 print('processing of {} is completed'.format(today_folder_page_html))
 
 #################################################
-
-'''
-extract the numbers and geo-points, and date
-'''
 
 print('enriching the parsed pages')
 
