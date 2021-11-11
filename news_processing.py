@@ -9,6 +9,8 @@ yanliang12/yan_sm_download:1.0.1
 
 python3 news_processing.py &
 
+localhost:6399
+
 '''
 
 
@@ -89,8 +91,6 @@ today = today.strftime("date%Y")
 parsing the pages
 '''
 
-import gulfnews_parsing
-import khaleejtimes_parsing
 import thenationalnews_parsing
 
 ####khaleejtimes#####
@@ -108,6 +108,7 @@ print('processing the pages of {}'.format(today_folder_page_html))
 sqlContext.read.parquet('khaleejtimes_page_html').registerTempTable('khaleejtimes_page_html')
 
 #####
+
 
 sqlContext.udf.register(
 	"page_parsing", 
@@ -145,6 +146,8 @@ sqlContext.read.parquet('gulfnews_page_html').registerTempTable('gulfnews_page_h
 
 #####
 
+import gulfnews_parsing
+
 sqlContext.udf.register(
 	"page_parsing", 
 	gulfnews_parsing.page_parsing,
@@ -180,9 +183,11 @@ sqlContext.read.parquet('thenationalnews_page_html').registerTempTable('thenatio
 
 #####
 
+import thenationalnews_parsing
+
 sqlContext.udf.register(
 	"page_parsing", 
-	page_parsing,
+	thenationalnews_parsing.page_parsing,
 	ArrayType(MapType(StringType(), StringType())))
 
 sqlContext.sql(u"""
