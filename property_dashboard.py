@@ -8,39 +8,16 @@ docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
 yanliang12/yan_sm_download:1.0.1 
 
-python3 property_processing.py
-
 python3 property_dashboard.py &
 
 '''
 
-
 import os
 import re
 import pandas
-import pytz
-import datetime
 import jessica_es
-import yan_web_page_download
-import yan_web_page_batch_download
 from os import listdir
 from os.path import isfile, join, exists
-
-import bayut_parsing
-import dubizzle_parsing
-import propertyfinder_parsing
-
-#######
-
-import pyspark
-from pyspark import *
-from pyspark.sql import *
-from pyspark.sql.types import *
-from pyspark.sql.functions import *
-
-sc = SparkContext("local")
-sqlContext = SparkSession.builder.getOrCreate()
-
 
 ############################################
 
@@ -80,26 +57,5 @@ PUT property
 }
 
 '''
-
-json_folder = '/dcd_data/temp/property_es_data'
-
-files = [join(json_folder, f) 
-	for f in listdir(json_folder) 
-	if isfile(join(json_folder, f))
-	and bool(re.search(r'.+\.json$', f))]
-
-for f in files:
-	try:
-		print('ingesting %s'%(f))
-		df = jessica_es.ingest_json_to_es_index(
-			json_file = f,
-			es_index = "property",
-			es_session = es_session,
-			document_id_feild = 'page_url_hash',
-			)
-		print(df)
-	except Exception as e:
-		print(e)
-
 
 ##########property_dashboard.py###########
