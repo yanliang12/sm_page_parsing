@@ -12,7 +12,7 @@ re_news_attributes = [
 	re.compile(r'by \<a href\="\/(?P<news__news_author_id__author_id>[^\"]*?)"\>\<h3\>(?P<news__news_author_name__author_name>[^\<\>]*?)\<\/h3\>\<\/a\>', flags=re.DOTALL),
 	re.compile(r'Published\:\<\/span\>\s*(?P<news__news_publish_time__time>[^\<\>]*?)\s*\<\/p\>', flags=re.DOTALL),
 	re.compile(r'class\="article\-lead\-img\-caption"\>\s*(?P<news__news_image_capition__text>[^\<\>]*?)\s*\<em', flags=re.DOTALL),
-	re.compile(r'\<\!\-\- element\: body \-\-\>(?P<news__news_body_text>.+)\<ul class\="tags\-btm\-nf"\>', flags=re.DOTALL),
+	re.compile(r'\<\!\-\- element\: body \-\-\>(?P<news__news_body__text>.+)\<ul class\="tags\-btm\-nf"\>', flags=re.DOTALL),
 ]
 
 
@@ -26,12 +26,13 @@ def page_parsing(
 			output.append(m.groupdict())
 	for e in output:
 		for k in e:
-			if k in ['news__news_body_text']:
+			if k in ['news__news_body__text']:
 				e[k] = re.sub(r'\<[^\<\>]*?\>', r'', e[k])
 	return output
 
 ###########
 
+'''
 page = pandas.read_json(
 	'/dcd_data/khaleejtimes/page_html/source=date2021/9a7872071dcb7f60b5d74998c3bb9dde.json',
 	lines = True,
@@ -50,5 +51,6 @@ output = page_parsing(
 for e in output:
 	print(e)
 
+'''
 
 ###########khaleejtimes_parsing.py###########

@@ -6,7 +6,7 @@ import pandas
 
 re_news_attributes = [
 	re.compile(r'class\="image\-caption" itemprop\="description"\>\s*(?P<news__news_image_capition__text>[^\<\>]*?)\s*\<', flags=re.DOTALL),
-	re.compile(r'\<div class\=\"story\-block\"\>(?P<news__news_body_text>.*?)\<\/div\>\s*\<\/div\>', flags=re.DOTALL),
+	re.compile(r'\<div class\=\"story\-block\"\>(?P<news__news_body__text>.*?)\<\/div\>\s*\<\/div\>', flags=re.DOTALL),
 	re.compile(r'\<meta name\="description" content\="(?P<news__news_description__description>[^\"]*?)"\s*\/\>', flags=re.DOTALL),
 	re.compile(r'\'publishedDate\'\:\s*\'(?P<news__news_publish_time__time>[^\']*?)\'\,', flags=re.DOTALL),
 	re.compile(r'\'page_section\'\:\s*\'(?P<news__news_category__news_category>[^\']*?)\'\,', flags=re.DOTALL),
@@ -35,7 +35,7 @@ def page_parsing(
 				output.append(m1.groupdict())
 	for e in output:
 		for k in e:
-			if k in ['news__news_body_text']:
+			if k in ['news__news_body__text']:
 				e[k] = re.sub(r'\<[^\<\>]*?\>', r'', e[k])
 	return output
 
