@@ -33,12 +33,12 @@ es_session = jessica_es.start_es(
 	es_port_number = "6794")
 
 while True:
-	sleep(60*60)
 	jessica_es.start_kibana(
 		kibana_path = '/jessica/kibana-6.7.1-linux-x86_64',
 		kibana_port_number = "3974",
 		es_port_number = "6794",
 		)
+	sleep(60*60)
 
 '''
 http://localhost:3974/app/kibana#/dashboard/84bd18c0-fdc2-11eb-bd1a-8f30bb208bae
