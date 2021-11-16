@@ -18,6 +18,8 @@ python3 job_dashboard.py &
 
 import os
 import re
+import time
+
 import jessica_es
 from os import listdir
 from os.path import isfile, join, exists
@@ -37,11 +39,13 @@ es_session = jessica_es.start_es(
 http://localhost:9364
 '''
 
-jessica_es.start_kibana(
-	kibana_path = '/jessica/kibana-6.7.1-linux-x86_64',
-	kibana_port_number = "5311",
-	es_port_number = "9364",
-	)
+while True:
+	jessica_es.start_kibana(
+		kibana_path = '/jessica/kibana-6.7.1-linux-x86_64',
+		kibana_port_number = "5311",
+		es_port_number = "9364",
+		)
+	time.sleep(60*60)
 
 
 '''
