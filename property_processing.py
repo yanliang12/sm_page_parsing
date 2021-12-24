@@ -7,9 +7,19 @@ docker run -it ^
 -v "E:\dcd_data":/dcd_data/ ^
 yanliang12/yan_sm_download:1.0.1 
 
-python3 property_processing.py &
+python3 \
+property_processing.py \
+--source date20211109
 
-python3 property_processing.py --source date20211029 
+python3 \
+property_processing.py \
+--source date20211110
+
+for day in {10..1..30}
+do
+	echo $day
+done
+
 
 '''
 
@@ -63,9 +73,13 @@ cp -r /jessica/elasticsearch_property /dcd_data/es/
 
 '''
 
+print('starting es')
+
 es_session = jessica_es.start_es(
 	es_path = "/dcd_data/es/elasticsearch_property",
 	es_port_number = "6794")
+
+print('starting kibana')
 
 jessica_es.start_kibana(
 	kibana_path = '/jessica/kibana-6.7.1-linux-x86_64',
